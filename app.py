@@ -1,7 +1,7 @@
 """
 =============================================================================
 PEER'S PHISH DETECTOR v1.0 — OFFICIAL PRODUCTION RELEASE
-Cute Kitty Pink Claymorphism Edition
+Black, White, Sky Blue & Crimson Red Edition
 Sqrock IT Solution | Alpha 2 Cybersecurity Internship (Day 03)
 Author: Md Peer Siddiqui
 Repository: https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector
@@ -114,9 +114,9 @@ def open_browser(port):
 
 
 def launch_web_server(port=5000):
-    """Launch the Web SOC application and open the browser."""
+    """Launch the Web Threat Dashboard and open the browser."""
     print("\n" + "=" * 70)
-    print("  🐾 PEER'S PHISH DETECTOR v1.0 — OFFICIAL RELEASE 🎀")
+    print("  ⚡ PEER'S PHISH DETECTOR v1.0 — OFFICIAL PRODUCTION RELEASE 🛡️")
     print("  Sqrock IT Solution | Alpha 2 Cybersecurity Internship (Day 03)")
     print(f"  --> Local Web Dashboard: http://127.0.0.1:{port}")
     print("  --> Status: ONLINE & READY (Press Ctrl+C to Stop)")

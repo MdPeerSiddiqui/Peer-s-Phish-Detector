@@ -1,9 +1,9 @@
-# 🐾 PEER'S PHISH DETECTOR 🎀
-### Pink Claymorphism Edition &bull; Real-World Lexical URL Threat Analyzer & Heuristic Scorer
+# ⚡ PEER'S PHISH DETECTOR
+### Black, White, Sky Blue & Crimson Red Edition &bull; Real-World Lexical URL Threat Analyzer
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Release-v1.0%20Official-f43f5e?style=for-the-badge&logo=heart&logoColor=white" alt="Release" />
-  <img src="https://img.shields.io/badge/Theme-Pink%20Claymorphism-ec4899?style=for-the-badge" alt="Theme" />
+  <img src="https://img.shields.io/badge/Release-v1.0%20Official-0ea5e9?style=for-the-badge&logo=shield&logoColor=white" alt="Release" />
+  <img src="https://img.shields.io/badge/Theme-Dark%20Sky%20%26%20Crimson-080c14?style=for-the-badge&logo=visualstudiocode&logoColor=38bdf8" alt="Theme" />
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
   <img src="https://img.shields.io/badge/Framework-Flask%20%7C%20REST%20API-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask" />
   <img src="https://img.shields.io/badge/Track-Sqrock%20Cybersecurity-0284c7?style=for-the-badge" alt="Sqrock" />
@@ -16,20 +16,20 @@
 
 During spear-phishing and social engineering operations, adversaries engineer deceptive Uniform Resource Locators (URLs) to hijack sessions, impersonate financial institutions, and harvest credentials.
 
-**PEER'S Phish Detector (v1.0 Official Release)** combines enterprise-grade lexical threat analysis with a **Cute Pink Claymorphism Web Dashboard** (Hello Kitty inspired aesthetic) and an interactive **CLI utility**. It statically dissects the anatomical components of **any target URL** across **8 balanced heuristic threat vectors**, performs safe non-intrusive DNS resolution, calculates an itemized risk score (0 to 100), and classifies threats into standardized operational risk tiers.
+**PEER'S Phish Detector (v1.0 Official Release)** combines enterprise-grade lexical threat analysis with a modern **Black, White, Sky Blue & Crimson Red Web Dashboard** and an interactive **CLI utility**. It statically dissects the anatomical components of **any target URL** across **8 balanced heuristic threat vectors**, performs safe non-intrusive DNS resolution, calculates an itemized risk score (0 to 100), and classifies threats into standardized operational risk tiers.
 
 > **Defensive Architecture:**  
 > The engine performs pure **lexical string dissection** and non-intrusive socket-level DNS queries without executing remote web page content, JavaScript, or downloading payloads. This eliminates drive-by malware execution risks and prevents alerting active threat actors during security investigations.
 
 ---
 
-## 🎀 2. Pink Claymorphism Web Dashboard Features
+## 🖥️ 2. Modern Web Dashboard Features
 
-Running `python app.py` or `python phish_detector.py` immediately spins up a local web application and opens a pastel pink 3D claymorphism dashboard in your default browser:
+Running `python app.py` or `python phish_detector.py` immediately spins up a local web application and opens a high-contrast dark dashboard in your default browser:
 
 - **Target URL Inspection Bar:** Analyze any arbitrary public or internal URL, paste from clipboard with a single click, or clear the buffer.
 - **Preset Test Samples:** Rapidly evaluate known RFC baselines, unencrypted portals, raw IP servers, PayPal brand typosquats, and disposable `.xyz` domains.
-- **Dynamic 3D Radial Risk Gauge:** Real-time animated circular progress ring with a cute kitty bow visualizing the 0–100 risk score with sweet pastel transitions (Mint Green, Warm Apricot, Strawberry Coral, Berry Crimson).
+- **Dynamic Radial Risk Gauge:** Real-time animated circular progress ring visualizing the 0–100 risk score with dynamic color transitions (Sky Blue, Amber, Orange, Crimson Red).
 - **URL Anatomical Dissection:** Isolates Scheme encryption status, Hostname, Subdomain nesting, Path & Query parameters, and Live Resolved IP address (with NXDOMAIN detection for inactive or suspended infrastructure).
 - **Triggered Threat Indicators:** Itemized security cards detailing the specific heuristic factor, point penalty, and forensic rationale.
 - **Interactive 10-URL Benchmark Modal:** Run and review empirical benchmark test results directly from the web interface.
