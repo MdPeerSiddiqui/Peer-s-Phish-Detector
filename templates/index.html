@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEER'S Phish Detector — URL Anatomy & Heuristic Threat Scorer</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-sub: #162032;
+      --border: #1f293d;
+      --border-focus: #0284c7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --cyan: #06b6d4;
+      --low: #10b981;
+      --med: #f59e0b;
+      --high: #f97316;
+      --crit: #ef4444;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", "SF Mono", Consolas, Menlo, Monaco, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header Nav */
+    header {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .nav-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(2, 132, 199, 0.35);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.125rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.6875rem;
+      background: #0f2c4a;
+      color: var(--cyan);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .btn-secondary {
+      background: var(--card-sub);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #1f2d45;
+      border-color: #334568;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: white;
+      box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+      box-shadow: 0 4px 16px rgba(2, 132, 199, 0.45);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1180px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(2, 132, 199, 0.12);
+      border: 1px solid rgba(2, 132, 199, 0.25);
+      color: var(--cyan);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 0.9rem;
+    }
+
+    .hero-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--low);
+      box-shadow: 0 0 8px var(--low);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    .hero h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(180deg, #ffffff 40%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Input Bar Card */
+    .search-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.35rem 0.5rem 0.35rem 1rem;
+      transition: all 0.2s ease;
+      gap: 0.5rem;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .url-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.9375rem;
+      padding: 0.5rem 0;
+    }
+
+    .url-input::placeholder {
+      color: #475569;
+    }
+
+    .input-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-scan {
+      padding: 0.65rem 1.4rem;
+      font-size: 0.875rem;
+    }
+
+    /* Options & Presets Bar */
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+      gap: 0.75rem;
+      font-size: 0.8125rem;
+    }
+
+    .presets-container {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .preset-label {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-right: 0.3rem;
+    }
+
+    .preset-chip {
+      background: var(--card-sub);
+      color: #94a3b8;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .preset-chip:hover {
+      background: #1f2d45;
+      color: var(--text);
+      border-color: #3b82f6;
+    }
+
+    .dns-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .dns-toggle input {
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Results Dashboard Grid */
+    .results-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Score Gauge Card */
+    .score-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .gauge-wrapper {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      margin-bottom: 1rem;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .gauge-bg {
+      fill: none;
+      stroke: #1e293b;
+      stroke-width: 10;
+    }
+
+    .gauge-progress {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 440;
+      stroke-dashoffset: 440;
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+    }
+
+    .gauge-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .score-number {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .score-denom {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    .tier-pill {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      padding: 0.3rem 0.9rem;
+      border-radius: 9999px;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.75rem;
+      display: inline-block;
+    }
+
+    .verdict-text {
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      line-height: 1.45;
+    }
+
+    .scan-meta {
+      margin-top: auto;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* URL Anatomy Card */
+    .anatomy-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .anatomy-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .anatomy-item {
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .anatomy-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+
+    .anatomy-val {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--text);
+      word-break: break-all;
+      text-align: right;
+    }
+
+    .badge-protocol-safe {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--low);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-protocol-warn {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--med);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Threat Indicators Table Section */
+    .indicators-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .indicators-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.1rem;
+    }
+
+    .indicator-count {
+      font-size: 0.75rem;
+      background: var(--card-sub);
+      color: var(--text-muted);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    .threat-list {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .threat-item {
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .threat-item.crit { border-left-color: var(--crit); }
+    .threat-item.high { border-left-color: var(--high); }
+    .threat-item.med  { border-left-color: var(--med); }
+    .threat-item.low  { border-left-color: var(--low); }
+
+    .threat-info h4 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .threat-info p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .threat-points {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+    }
+
+    .threat-clean {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px dashed rgba(16, 185, 129, 0.35);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--low);
+    }
+
+    .threat-clean p {
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      margin-top: 0.3rem;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      animation: modalScale 0.2s ease-out;
+    }
+
+    @keyframes modalScale {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .benchmark-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    .benchmark-table th {
+      text-align: left;
+      padding: 0.7rem 0.9rem;
+      background: var(--card-sub);
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .benchmark-table td {
+      padding: 0.7rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      word-break: break-all;
+    }
+
+    .match-tag {
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+    }
+
+    .match-ok { background: rgba(16, 185, 129, 0.15); color: var(--low); }
+    .match-divergent { background: rgba(245, 158, 11, 0.15); color: var(--med); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      background: var(--card-bg);
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 860px) {
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">
+            PEER'S Phish Detector
+            <span class="brand-badge">v2.0 Web SOC</span>
+          </div>
+          <div class="brand-sub">Sqrock IT Solution | Alpha 2 Cybersecurity Track (Day 03)</div>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <button class="btn btn-secondary" onclick="openBenchmarkModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          10-URL Benchmark
+        </button>
+        <a href="/api/export-pdf" class="btn btn-primary" target="_blank">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+          Executive PDF Report
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body Content -->
+  <main>
+    
+    <!-- Hero Header -->
+    <div class="hero">
+      <div class="hero-badge">
+        <div class="hero-pulse"></div>
+        8-Factor Lexical URL Threat Engine &bull; Non-Intrusive Offline Safety
+      </div>
+      <h1>Inspect Any URL for Phishing Indicators</h1>
+      <p>Evaluate credential lures, homoglyph typosquatting, raw IP servers, manipulative subdomains, and suspicious TLDs with transparent heuristic scoring.</p>
+    </div>
+
+    <!-- Search / Input Card -->
+    <div class="search-card">
+      <div class="input-wrapper">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input 
+          type="text" 
+          id="urlInput" 
+          class="url-input" 
+          placeholder="https://example.com/login or paste any suspicious link..."
+          autofocus
+          autocomplete="off"
+        />
+        <div class="input-btn-group">
+          <button class="btn btn-secondary" onclick="handlePaste()" title="Paste from clipboard">Paste</button>
+          <button class="btn btn-secondary" onclick="handleClear()" title="Clear">Clear</button>
+          <button class="btn btn-primary btn-scan" id="btnScan" onclick="performScan()">
+            <span>Inspect URL</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Presets & Toggles -->
+      <div class="options-row">
+        <div class="presets-container">
+          <span class="preset-label">Test Samples:</span>
+          <span class="preset-chip" onclick="loadSample('https://example.com')">Legitimate (Clean)</span>
+          <span class="preset-chip" onclick="loadSample('http://example.com')">Unencrypted HTTP</span>
+          <span class="preset-chip" onclick="loadSample('http://192.168.1.100/login')">Raw IP Host</span>
+          <span class="preset-chip" onclick="loadSample('https://paypa1-security.com/signin')">Typosquatting</span>
+          <span class="preset-chip" onclick="loadSample('https://paypal.com.account-verify.security-update.evil.com/login')">Subdomain Spoof</span>
+          <span class="preset-chip" onclick="loadSample('http://banking-portal-update.xyz/verify')">Disposable .xyz TLD</span>
+          <span class="preset-chip" onclick="loadSample('https://bit.ly/secure-login-39x')">URL Shortener</span>
+          <span class="preset-chip" onclick="loadSample('https://github.com/login')">Legitimate Path</span>
+        </div>
+
+        <label class="dns-toggle">
+          <input type="checkbox" id="chkDns" checked>
+          <span>Enable Live DNS Resolution</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Results Section (Dynamic) -->
+    <div id="resultsSection" style="display: none;">
+      
+      <!-- Top Grid: Score & Anatomy -->
+      <div class="results-grid">
+        
+        <!-- Score & Tier Card -->
+        <div class="score-card">
+          <div class="gauge-wrapper">
+            <svg class="gauge-svg" viewBox="0 0 160 160">
+              <circle class="gauge-bg" cx="80" cy="80" r="70" />
+              <circle id="gaugeProgress" class="gauge-progress" cx="80" cy="80" r="70" />
+            </svg>
+            <div class="gauge-center">
+              <div id="scoreNumber" class="score-number">0</div>
+              <div class="score-denom">OUT OF 100</div>
+            </div>
+          </div>
+
+          <div id="tierPill" class="tier-pill">LOW RISK</div>
+          <p id="verdictText" class="verdict-text">No suspicious lexical indicators detected.</p>
+
+          <div class="scan-meta">
+            <span>Heuristic Capping: 100 Max</span>
+            <span id="scanLatency">Latency: -- ms</span>
+          </div>
+        </div>
+
+        <!-- URL Anatomy Card -->
+        <div class="anatomy-card">
+          <div class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+              <line x1="6" y1="6" x2="6.01" y2="6"/>
+              <line x1="6" y1="18" x2="6.01" y2="18"/>
+            </svg>
+            URL Anatomical Dissection
+          </div>
+
+          <div class="anatomy-list">
+            <div class="anatomy-item">
+              <span class="anatomy-label">Scheme / Protocol</span>
+              <span id="valScheme" class="anatomy-val badge-protocol-safe">HTTPS (TLS Encrypted)</span>
+            </div>
+
+            <div class="anatomy-item">
+              <span class="anatomy-label">Hostname / Domain</span>
+              <span id="valHost" class="anatomy-val">example.com</span>
+            </div>
+
+            <div class="anatomy-item">
+              <span class="anatomy-label">Subdomain Labels</span>
+              <span id="valSubdomain" class="anatomy-val">(None)</span>
+            </div>
+
+            <div class="anatomy-item">
+              <span class="anatomy-label">Path & Query String</span>
+              <span id="valPathQuery" class="anatomy-val">/</span>
+            </div>
+
+            <div class="anatomy-item">
+              <span class="anatomy-label">Resolved IP Address</span>
+              <span id="valDns" class="anatomy-val" style="color: var(--cyan);">93.184.216.34</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Triggered Indicators Card -->
+      <div class="indicators-card">
+        <div class="indicators-header">
+          <div class="card-title" style="margin-bottom: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Triggered Threat Indicators
+          </div>
+          <span id="threatCount" class="indicator-count">0 Rules Flagged</span>
+        </div>
+
+        <div id="threatList" class="threat-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Benchmark Modal -->
+  <div id="benchmarkModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🧪 10-URL Empirical Benchmark Suite</div>
+        <button class="modal-close" onclick="closeBenchmarkModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Evaluating lexical heuristics across representative baselines, homoglyphs, raw IPs, and subdomain exploits:
+        </p>
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Target URL</th>
+              <th>Score</th>
+              <th>Actual Tier</th>
+              <th>Expected Tier</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="benchmarkTbody">
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading benchmark suite...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      Developed by <strong>Md Peer Siddiqui</strong> for <strong>Sqrock IT Solution</strong> | Alpha 2 Cybersecurity Internship (Day 03)
+      &bull; <a href="https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector" target="_blank">GitHub Repository</a>
+      &bull; MIT License
+    </p>
+  </footer>
+
+  <!-- Script Logic -->
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const chkDns = document.getElementById('chkDns');
+    const btnScan = document.getElementById('btnScan');
+    const resultsSection = document.getElementById('resultsSection');
+
+    // Enter Key Handler
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        performScan();
+      }
+    });
+
+    function loadSample(url) {
+      urlInput.value = url;
+      performScan();
+    }
+
+    async function handlePaste() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          urlInput.value = text.trim();
+          performScan();
+        }
+      } catch (err) {
+        alert("Clipboard read permission denied or unavailable. Please paste manually into the input box.");
+      }
+    }
+
+    function handleClear() {
+      urlInput.value = '';
+      resultsSection.style.display = 'none';
+      urlInput.focus();
+    }
+
+    async function performScan() {
+      const url = urlInput.value.trim();
+      if (!url) {
+        alert("Please enter a URL to inspect.");
+        urlInput.focus();
+        return;
+      }
+
+      btnScan.disabled = true;
+      btnScan.innerHTML = "<span>Scanning...</span>";
+      const startTime = performance.now();
+
+      try {
+        const response = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: url,
+            dns: chkDns.checked
+          })
+        });
+
+        const data = await response.json();
+        const duration = Math.round(performance.now() - startTime);
+
+        renderResults(data, duration);
+      } catch (err) {
+        alert("Error connecting to local analysis engine: " + err);
+      } finally {
+        btnScan.disabled = false;
+        btnScan.innerHTML = "<span>Inspect URL</span>";
+      }
+    }
+
+    function renderResults(data, duration) {
+      resultsSection.style.display = 'block';
+      document.getElementById('scanLatency').textContent = `Latency: ${duration} ms`;
+
+      // 1. Score & Tier
+      const score = data.score;
+      const tier = data.risk_level;
+      document.getElementById('scoreNumber').textContent = score;
+      document.getElementById('verdictText').textContent = data.verdict;
+
+      // Color mapping
+      let color = 'var(--low)';
+      let bgPill = 'rgba(16, 185, 129, 0.15)';
+      let textPill = 'var(--low)';
+      let borderPill = 'rgba(16, 185, 129, 0.3)';
+
+      if (tier === 'Critical Risk') {
+        color = 'var(--crit)';
+        bgPill = 'rgba(239, 68, 68, 0.15)';
+        textPill = 'var(--crit)';
+        borderPill = 'rgba(239, 68, 68, 0.35)';
+      } else if (tier === 'High Risk') {
+        color = 'var(--high)';
+        bgPill = 'rgba(249, 115, 22, 0.15)';
+        textPill = 'var(--high)';
+        borderPill = 'rgba(249, 115, 22, 0.35)';
+      } else if (tier === 'Medium Risk') {
+        color = 'var(--med)';
+        bgPill = 'rgba(245, 158, 11, 0.15)';
+        textPill = 'var(--med)';
+        borderPill = 'rgba(245, 158, 11, 0.35)';
+      }
+
+      const pill = document.getElementById('tierPill');
+      pill.textContent = tier.toUpperCase();
+      pill.style.background = bgPill;
+      pill.style.color = textPill;
+      pill.style.border = `1px solid ${borderPill}`;
+
+      // Animate Radial Gauge (circumference = 2 * PI * 70 ≈ 440)
+      const circumference = 440;
+      const offset = circumference - (score / 100) * circumference;
+      const progressCircle = document.getElementById('gaugeProgress');
+      progressCircle.style.stroke = color;
+      progressCircle.style.strokeDashoffset = offset;
+
+      // 2. URL Anatomy Breakdown
+      let scheme = 'HTTP';
+      try {
+        const u = new URL(data.url.startsWith('http') ? data.url : 'http://' + data.url);
+        scheme = u.protocol.replace(':', '').toUpperCase();
+      } catch(e) {}
+
+      const valScheme = document.getElementById('valScheme');
+      if (scheme === 'HTTPS') {
+        valScheme.className = 'anatomy-val badge-protocol-safe';
+        valScheme.textContent = 'HTTPS (TLS Encrypted)';
+      } else {
+        valScheme.className = 'anatomy-val badge-protocol-warn';
+        valScheme.textContent = 'HTTP (Unencrypted Protocol)';
+      }
+
+      document.getElementById('valHost').textContent = data.hostname || 'N/A';
+
+      // Subdomains
+      const parts = (data.hostname || '').split('.');
+      if (parts.length > 2) {
+        document.getElementById('valSubdomain').textContent = parts.slice(0, -2).join('.');
+      } else {
+        document.getElementById('valSubdomain').textContent = '(None)';
+      }
+
+      // Path & Query
+      let pathQuery = '/';
+      try {
+        const u = new URL(data.url.startsWith('http') ? data.url : 'http://' + data.url);
+        pathQuery = (u.pathname + u.search) || '/';
+      } catch(e) {}
+      document.getElementById('valPathQuery').textContent = pathQuery;
+
+      // DNS
+      const dnsElem = document.getElementById('valDns');
+      const dns = data.dns_info;
+      if (dns) {
+        if (dns.status === 'resolved') {
+          dnsElem.textContent = dns.ips.slice(0, 2).join(', ') + ' (Live Resolving)';
+          dnsElem.style.color = 'var(--cyan)';
+        } else if (dns.status === 'raw_ip') {
+          dnsElem.textContent = dns.ips[0] + ' (Direct IP Address)';
+          dnsElem.style.color = 'var(--crit)';
+        } else if (dns.status === 'nxdomain') {
+          dnsElem.textContent = 'NXDOMAIN (Unregistered or Suspended Host)';
+          dnsElem.style.color = 'var(--med)';
+        } else {
+          dnsElem.textContent = dns.error || 'Lookup Failed';
+          dnsElem.style.color = 'var(--text-muted)';
+        }
+      } else {
+        dnsElem.textContent = 'DNS Lookup Disabled';
+        dnsElem.style.color = 'var(--text-muted)';
+      }
+
+      // 3. Triggered Indicators List
+      const threatList = document.getElementById('threatList');
+      threatList.innerHTML = '';
+      const breakdown = data.breakdown || [];
+      document.getElementById('threatCount').textContent = `${breakdown.length} Rules Flagged`;
+
+      if (breakdown.length === 0) {
+        threatList.innerHTML = `
+          <div class="threat-clean">
+            <h4>No Suspicious Lexical Indicators Detected</h4>
+            <p>The analyzed URL exhibits baseline legitimate structure without deceptive character substitutions or high-risk patterns.</p>
+          </div>
+        `;
+      } else {
+        breakdown.forEach(item => {
+          let badgeClass = 'low';
+          if (item.points >= 25) badgeClass = 'crit';
+          else if (item.points >= 20) badgeClass = 'high';
+          else if (item.points >= 15) badgeClass = 'med';
+
+          const card = document.createElement('div');
+          card.className = `threat-item ${badgeClass}`;
+          card.innerHTML = `
+            <div class="threat-info">
+              <h4>${item.factor}</h4>
+              <p>${item.reason}</p>
+            </div>
+            <div class="threat-points">+${item.points} pts</div>
+          `;
+          threatList.appendChild(card);
+        });
+      }
+
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Modal Handlers
+    function openBenchmarkModal() {
+      const modal = document.getElementById('benchmarkModal');
+      modal.classList.add('active');
+      loadBenchmarkData();
+    }
+
+    function closeBenchmarkModal() {
+      document.getElementById('benchmarkModal').classList.remove('active');
+    }
+
+    async function loadBenchmarkData() {
+      const tbody = document.getElementById('benchmarkTbody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Executing benchmark suite...</td></tr>';
+      
+      try {
+        const res = await fetch('/api/benchmark');
+        const data = await res.json();
+        tbody.innerHTML = '';
+        data.forEach(item => {
+          const tr = document.createElement('tr');
+          const isMatch = item.is_match;
+          tr.innerHTML = `
+            <td style="color: var(--text-muted);">${item.id}</td>
+            <td style="font-family: var(--font-mono); color: var(--text);">${item.url}</td>
+            <td style="font-weight: 700;">${item.actual_score}/100</td>
+            <td>${item.actual_risk}</td>
+            <td style="color: var(--text-muted);">${item.expected_risk}</td>
+            <td><span class="match-tag ${isMatch ? 'match-ok' : 'match-divergent'}">${isMatch ? 'MATCH' : 'DIVERGENT'}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color: var(--crit); text-align: center;">Failed to load benchmark: ${err}</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -644,8 +644,8 @@ def main():
 
     # 4. Default: Launch Graphical User Interface (GUI)
     try:
-        from gui import launch_gui
-        launch_gui()
+        from app import launch_web_server
+        launch_web_server()
     except Exception as e:
         # Fall back to CLI if headless or display is unavailable
         print(BANNER)
