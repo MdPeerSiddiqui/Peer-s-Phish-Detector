@@ -1,35 +1,53 @@
 # ⚡ PEER'S PHISH DETECTOR ⚡
-### Lexical URL Phishing Analysis & Heuristic Risk Scorer
+### Real-World Lexical URL Threat Analyzer, Heuristic Scorer & Graphical User Interface (GUI)
 **Sqrock IT Solution | Alpha 2 Cybersecurity Internship — Day 03 Practical Project**  
 **Author:** Md Peer Siddiqui  
-**Repository:** [https://github.com/MdPeerSiddiqui/Peers-Phish-Detector](https://github.com/MdPeerSiddiqui/Peers-Phish-Detector)
+**Repository:** [https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector](https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector)
 
 ---
 
-```
+```text
   _____  ______ ______ _____  _  _____ 
  |  __ \|  ____|  ____|  __ \(_)/ ____|
  | |__) | |__  | |__  | |__) |_| (___  
  |  ___/|  __| |  __| |  _  /   \___ \ 
  | |    | |____| |____| | \ \   ____) |
  |_|    |_| |_|_|___/_| |_| |_____/ \___|\__\___|\___|\__\___/|_|   
- ⚡ PEER'S PHISH DETECTOR v1.0 — URL Anatomy & Heuristic Scorer ⚡
+ ⚡ PEER'S PHISH DETECTOR v2.0 — Real-World Engine & Graphical UI ⚡
 ```
 
 ---
 
 ## 📌 1. Project Overview
 
-During social engineering and spear phishing campaigns, attackers craft deceptive Uniform Resource Locators (URLs) to trick victims into surrendering sensitive credentials, financial data, or authorization tokens.
+During social engineering and spear phishing campaigns, attackers engineer deceptive Uniform Resource Locators (URLs) to trick victims into surrendering sensitive credentials, financial data, or session cookies.
 
-**PEER'S Phish Detector** is a specialized, lightweight cybersecurity audit utility developed in Python. It statically dissects the anatomy of any given URL across **8 transparent heuristic indicators**, calculates an itemized risk score (0 to 100), and assigns the URL to an explicitly defined risk tier.
+**PEER'S Phish Detector** is a full-featured, real-world cybersecurity audit utility featuring both a **modern Graphical User Interface (GUI)** and a **scriptable Command-Line Interface (CLI)**. It statically dissects the anatomy of **any given URL** across **8 transparent heuristic indicators**, executes safe non-intrusive DNS resolution, calculates an itemized risk score (0 to 100), and assigns the URL to an explicitly defined risk tier.
 
-> **Important Distinction:**  
-> This tool conducts **lexical URL inspection** (identifying patterns, character substitutions, subdomain manipulation, protocol usage, and sensitive keywords inside the URL string itself). It operates safely without fetching the target web page, protecting the security analyst from executing drive-by malware or alerting an active threat actor.
+> **Defensive Safety Architecture:**  
+> This tool conducts **lexical URL inspection** (identifying deceptive patterns, character substitutions, subdomain nesting, protocol weaknesses, and sensitive keywords inside the URL string itself) combined with non-intrusive DNS socket queries. It never executes remote HTML, CSS, JavaScript, or downloads payloads, protecting the security analyst from drive-by malware or alerting an active threat actor.
 
 ---
 
-## 🔬 2. The 8 Balanced Heuristic Scoring Rules
+## 🖥️ 2. Graphical User Interface (GUI) Features
+
+Running `python phish_detector.py` or `python gui.py` immediately launches a desktop application built with a modern dark cybersecurity theme:
+
+- **Target URL Inspection Bar:** Analyze any live or suspicious URL, paste from clipboard with one click, or clear the buffer.
+- **10-Sample Benchmark Preset Menu:** Instantly load legitimate domains, raw IP portals, PayPal subdomain spoofs, homoglyph typosquats, and disposable TLD lures.
+- **Dynamic Heuristic Risk Gauge:** Real-time visual progress meter with color-coded risk badge (Emerald, Amber, Coral, Crimson).
+- **URL Anatomical Dissection Card:** Deconstructs Protocol/TLS encryption status, Hostname, Subdomain labels, Path/Query parameters, and Live Resolved IP address (or NXDOMAIN warning for dead/taken-down domains).
+- **Detailed Threat Breakdown Table:** Itemized findings table showing each triggered factor, points awarded, and technical rationale.
+- **Action Toolbar:**
+  - `📋 Copy Audit Summary`: Copies full audit breakdown to clipboard.
+  - `💾 Export JSON Report`: Saves machine-readable JSON security report.
+  - `📄 Generate Official PDF Report`: Compiles an executive 3-page PDF lab report.
+  - `🧪 Run 10-URL Benchmark`: Executes the built-in empirical test suite inside an interactive modal.
+  - `ℹ️ About & Methodology`: In-app reference of heuristic weights and false assurance safeguards.
+
+---
+
+## 🔬 3. The 8 Balanced Heuristic Scoring Rules
 
 Unlike opaque "black-box" scanners, **PEER'S Phish Detector** itemizes every point awarded. Points are balanced heuristic weights chosen to reflect empirical phishing attack patterns:
 
@@ -40,15 +58,15 @@ Unlike opaque "black-box" scanners, **PEER'S Phish Detector** itemizes every poi
 | **3** | **Subdomain Abuse** | **+25** | Detects excessive label nesting (>3 domain labels) and identifies trusted brand names (e.g. `paypal`, `google`) placed in subdomain prefixes on an unrelated registered domain. |
 | **4** | **Sensitive Action Keywords** | **+25** | Scans for high-urgency authentication tokens (`login`, `verify`, `account`, `banking`, `update`). Evaluates hostname presence (+20 pts) separately from path/query presence (+10 pts) to prevent over-penalizing legitimate sites like `github.com/login`. |
 | **5** | **Brand Typosquatting** | **+30** | Employs visual lookalike normalization (homoglyphs) detecting substitutions like `paypa1` (digit `1` for letter `l`) or `g00gle` (digit `0` for letter `o`), plus brand lures inside URL paths on untrusted hosts (+15 pts). |
-| **6** | **Suspicious TLD Extension** | **+15** | Flags high-abuse, disposable Top-Level Domains frequently utilized by automated phishing kits (e.g., `.xyz`, `.top`, `.tk`, `.ml`, `.cf`, `.gq`, `.buzz`, `.fit`). |
-| **7** | **URL Shortener Masking** | **+25** | Detects redirection services (`bit.ly`, `tinyurl.com`, `t.co`, `is.gd`, `ow.ly`) that conceal the true destination hostname and infrastructure from the victim. |
+| **6** | **Suspicious TLD Extension** | **+15** | Flags high-abuse, disposable Top-Level Domains frequently utilized by automated phishing kits (e.g., `.xyz`, `.top`, `.tk`, `.ml`, `.cf`, `.gq`, `.buzz`, `.fit`, `.rest`, `.icu`). |
+| **7** | **URL Shortener Masking** | **+25** | Detects redirection services (`bit.ly`, `tinyurl.com`, `t.co`, `is.gd`, `ow.ly`, `rebrand.ly`, `cutt.ly`) that conceal the true destination hostname and infrastructure from the victim. |
 | **8** | **Character Density & Length** | **+15** | Analyzes excessive hostname hyphenation (≥3 hyphens) and anomalous string length (>75 chars or hostname >40 chars), typical of auto-generated phishing kits. |
 
 *Total score is mathematically capped at **100 points**.*
 
 ---
 
-## 🎯 3. Defined Risk Tiers & Terminology
+## 🎯 4. Defined Risk Tiers & Terminology
 
 To maintain scientific integrity and prevent false assurance, the tool adheres to transparent threshold definitions:
 
@@ -61,9 +79,9 @@ To maintain scientific integrity and prevent false assurance, the tool adheres t
 
 ---
 
-## 📊 4. 10-URL Empirical Benchmark Results
+## 📊 5. 10-URL Empirical Benchmark Results
 
-The tool includes a built-in empirical benchmark suite (`--test`) evaluating 10 representative URL test cases ranging from legitimate baselines to sophisticated composite phishing lures:
+The tool includes a built-in empirical benchmark suite (`--test`) evaluating 10 representative URL test cases:
 
 | # | Target URL | Expected Tier | Actual Score | Actual Tier | Result | Key Heuristics Triggered |
 |:-:|:---|:---:|:---:|:---:|:---:|:---|
@@ -81,44 +99,48 @@ The tool includes a built-in empirical benchmark suite (`--test`) evaluating 10 
 ### 💡 The "HTTPS Phishing Paradox" (Explaining Test Case #8 Divergence)
 In test case #8, a security analyst intuitively flags the URL as *High Risk* due to aggressive credential keyword stuffing. However, the static lexical scorer awarded **35/100 (Medium Risk)** because the URL uses a valid TLS certificate (`https://`) and a standard `.com` top-level domain.
 
-**Cybersecurity Insight:** According to the Anti-Phishing Working Group (APWG), over 80% of active phishing websites now utilize valid, free SSL/TLS certificates (e.g., Let's Encrypt). This divergence provides an essential lesson: **a green padlock icon or HTTPS scheme does not mean a website is safe.** It only guarantees the connection is encrypted, not that the recipient is trustworthy.
+**Cybersecurity Insight:** According to the Anti-Phishing Working Group (APWG), over 83% of active phishing websites now utilize valid, free SSL/TLS certificates (e.g., Let's Encrypt). This divergence demonstrates that **a green padlock icon or HTTPS scheme does not mean a website is safe.** It only guarantees the connection is encrypted, not that the recipient is trustworthy.
 
 ---
 
-## 🚀 5. Installation & Execution Guide
+## 🚀 6. Installation & Execution Guide
 
-### Prerequisites
-- Python 3.8 or higher
-- Terminal access (Linux/Kali, macOS, or Windows)
-
-### Option A: Linux / Kali Linux
+### Option A: Linux / Kali Linux (GUI & CLI)
 ```bash
 # 1. Clone the repository
-git clone https://github.com/MdPeerSiddiqui/Peers-Phish-Detector.git
-cd Peers-Phish-Detector
+git clone https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector.git
+cd Peer-s-Phish-Detector
 
-# 2. Create and activate a virtual environment
+# 2. Ensure Tkinter is installed on Kali / Debian (for Graphical UI)
+sudo apt update && sudo apt install -y python3-tk
+
+# 3. Create and activate a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 3. Install dependencies
+# 4. Install dependencies
 pip install -r requirements.txt
 
-# 4. Run the interactive scanner
+# 5. Launch the Graphical User Interface (GUI)
 python3 phish_detector.py
+# (Or directly run: python3 gui.py)
 
-# 5. Run the 10-URL benchmark test suite
+# 6. Run via CLI (interactive mode or direct URL scan)
+python3 phish_detector.py --cli
+python3 phish_detector.py https://paypa1-security-verification.xyz/login
+
+# 7. Run the 10-URL benchmark test suite
 python3 phish_detector.py --test
 
-# 6. Run automated unit tests
+# 8. Run automated unit tests
 python3 -m unittest tests/test_phish_detector.py
 ```
 
 ### Option B: Windows (PowerShell / Command Prompt)
 ```powershell
 # 1. Clone the repository
-git clone https://github.com/MdPeerSiddiqui/Peers-Phish-Detector.git
-cd Peers-Phish-Detector
+git clone https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector.git
+cd Peer-s-Phish-Detector
 
 # 2. Create and activate virtual environment
 python -m venv .venv
@@ -127,65 +149,73 @@ python -m venv .venv
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Run interactive scan
+# 4. Launch Graphical User Interface (GUI)
 python phish_detector.py
 
-# 5. Run benchmark suite
+# 5. Run via CLI
+python phish_detector.py --cli
+python phish_detector.py https://google.com
+
+# 6. Run benchmark suite
 python phish_detector.py --test
 
-# 6. Run automated unit tests
+# 7. Run automated unit tests
 python -m unittest tests/test_phish_detector.py
 ```
 
 ---
 
-## 💻 6. Usage Examples & Output Previews
+## 💻 7. CLI Output Previews
 
-### Single URL Scan (Terminal Preview)
-```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                     URL HEURISTIC AUDIT REPORT CARD                          │
-└──────────────────────────────────────────────────────────────────────────────┘
- TARGET URL : https://paypa1-security.com/signin
- HOSTNAME   : paypa1-security.com
- RISK SCORE : [███████████░░░░░░░░░] 55 / 100
- RISK LEVEL : HIGH RISK
- VERDICT    : Significant phishing indicators detected in URL pattern.
-
-TRIGGERED RISK INDICATORS (2 DETECTED):
-  [!] Sensitive Action Keywords (+25 pts)
-      --> Sensitive credential keyword(s) in hostname: security (+20 pts). Action keyword(s) in URL path/query: signin (+10 pts).
-  [!] Brand Typosquatting (+30 pts)
-      --> Brand lookalike / typosquatting detected targeting 'paypal' (+30 pts).
-────────────────────────────────────────────────────────────────────────────────
+### Direct Single URL Scan
+```text
+----------------------------------------------------------------------------------
+[TARGET URL] : https://paypa1-security-verification.xyz/login
+[HOSTNAME]   : paypa1-security-verification.xyz
+[RESOLVED IP]: NXDOMAIN (Domain Unregistered or Suspended)
+[RISK SCORE] : 70/100  |  Tier: High Risk
+[VERDICT]    : Significant phishing indicators detected in URL pattern.
+----------------------------------------------------------------------------------
+Heuristic Breakdown (3 rules triggered):
+  [01] Sensitive Action Keywords    : +25 pts
+       └── Sensitive credential keyword(s) in hostname: verification, security (+20 pts). Action keyword(s) in URL path/query: login (+10 pts).
+  [02] Brand Typosquatting          : +30 pts
+       └── Brand lookalike / typosquatting detected targeting 'paypal' (+30 pts).
+  [03] Suspicious TLD Extension     : +15 pts
+       └── High-abuse top-level domain extension detected (.xyz) (+15 pts).
+==================================================================================
 ```
 
 ---
 
-## 📁 7. Repository Architecture
+## 📁 8. Repository Architecture
 
-```
-Peers-Phish-Detector/
+```text
+Peer-s-Phish-Detector/
 ├── .gitignore                      # Git exclusion rules
 ├── LICENSE                         # Open-source MIT license
-├── README.md                       # Comprehensive project documentation
+├── README.md                       # Comprehensive documentation & benchmarks
 ├── requirements.txt                # Python package dependencies
 ├── test_urls.json                  # Curated 10-URL empirical benchmark dataset
-├── phish_detector.py               # Core analysis tool & CLI orchestrator
+├── phish_detector.py               # Core analysis tool & CLI / GUI auto-launcher
+├── gui.py                          # Modern dark-themed Graphical User Interface
 ├── tests/
 │   └── test_phish_detector.py      # Automated 16-point unit test suite
 ├── reports/
+│   ├── Day03_Phishing_Detection_Report_Sqrock_MdPeerSiddiqui.pdf  # Executive audit report
 │   ├── test_results.json           # Machine-readable benchmark audit output
 │   └── test_results.txt            # Plaintext benchmark audit log
+├── scripts/
+│   └── generate_day03_pdf.py       # Script that builds the executive PDF report
 └── screenshots/                    # Execution evidence captures
 ```
 
 ---
 
-## 🛡️ 8. Scope, Ethics & Limitations
+## 🛡️ 9. Scope, Ethics & Limitations
 
 - **Educational & Defensive Scope:** This project was developed strictly for authorized educational training within the Sqrock IT Solution Cybersecurity Internship.
-- **URL Lexical Analysis vs DOM Inspection:** This tool analyzes static URL strings. It does not inspect the HTML Document Object Model (DOM), CSS styling, JavaScript payloads, or server-side `<form action="...">` redirection endpoints.
+- **URL Lexical Analysis vs DOM Inspection:** This tool analyzes static URL strings and conducts safe DNS queries. It does not inspect the HTML Document Object Model (DOM), CSS styling, JavaScript payloads, or server-side `<form action="...">` redirection endpoints.
 - **Defense-in-Depth Recommendation:** In an enterprise Security Operations Center (SOC), heuristic URL scoring should be paired with dynamic sandboxing, SSL certificate age inspection, and live threat intelligence feeds (e.g., Google Safe Browsing, PhishTank, VirusTotal).
 
 ---

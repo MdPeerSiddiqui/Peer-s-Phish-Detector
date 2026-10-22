@@ -24,9 +24,11 @@ import ipaddress
 import json
 import os
 import re
+import socket
 import sys
 from datetime import datetime
 from urllib.parse import urlparse
+from typing import Tuple, List, Dict
 
 # Cross-platform color styling with graceful fallback
 try:
@@ -79,33 +81,78 @@ BANNER = rf"""{C_CYAN}{C_BRIGHT}
 """
 
 # =============================================================================
-# HEURISTIC CONFIGURATION & DICTIONARIES
+# HEURISTIC CONFIGURATION & DICTIONARIES (EXPANDED REAL-WORLD THREAT FEED)
 # =============================================================================
 
 # Common sensitive action keywords targeted in phishing campaigns
 SENSITIVE_KEYWORDS = [
-    "login", "verify", "account", "banking", "security", "update",
-    "signin", "wallet", "kyc", "password", "authenticate", "portal",
-    "billing", "confirm", "support", "secure", "recover"
+    "login", "verify", "verification", "account", "banking", "security", "update",
+    "signin", "wallet", "kyc", "password", "authenticate", "auth", "portal",
+    "billing", "confirm", "confirmation", "support", "secure", "recover", "recovery",
+    "suspend", "suspended", "validate", "unlock", "renew", "reactivate", "invoice"
 ]
 
-# High-profile brands frequently targeted by brand lookalikes
+# High-profile brands frequently targeted by brand lookalikes & phishing lures
 TARGET_BRANDS = [
-    "paypal", "google", "microsoft", "apple", "amazon", "netflix",
-    "facebook", "instagram", "chase", "wellsfargo", "bankofamerica"
+    # Financial & Payment
+    "paypal", "chase", "wellsfargo", "bankofamerica", "citibank", "barclays", "hsbc",
+    "stripe", "shopify", "venmo", "zelle",
+    # Tech & Cloud Ecosystems
+    "google", "microsoft", "apple", "amazon", "netflix", "dropbox", "adobe", "steam",
+    "yahoo", "office365", "outlook",
+    # Crypto & Web3
+    "binance", "coinbase", "metamask", "kraken",
+    # Social Media & Messaging
+    "facebook", "instagram", "linkedin", "twitter", "whatsapp", "telegram", "discord", "tiktok"
 ]
 
 # Top-level domains statistically overrepresented in disposable phishing campaigns
 SUSPICIOUS_TLDS = [
-    ".xyz", ".top", ".tk", ".ml", ".cf", ".gq", ".buzz", ".club",
-    ".work", ".icu", ".cam", ".fit", ".rest", ".online"
+    ".xyz", ".top", ".tk", ".ml", ".cf", ".gq", ".ga", ".buzz", ".club",
+    ".work", ".icu", ".cam", ".fit", ".rest", ".online", ".men", ".loan",
+    ".live", ".shop", ".cyou", ".sbs", ".cfd", ".vip", ".monster", ".tokyo",
+    ".racing", ".download", ".accountant", ".bid", ".date", ".faith", ".party",
+    ".review", ".stream", ".trade", ".win"
 ]
 
 # Popular URL shorteners that mask the true destination host
 KNOWN_SHORTENERS = [
     "bit.ly", "tinyurl.com", "t.co", "goo.gl", "is.gd", "buff.ly",
-    "ow.ly", "rebrand.ly", "cutt.ly"
+    "ow.ly", "rebrand.ly", "cutt.ly", "adf.ly", "bit.do", "mcaf.ee",
+    "su.pr", "qr.ae", "shorturl.at", "shorte.st"
 ]
+
+
+def resolve_dns(hostname: str, timeout: float = 2.0) -> dict:
+    """
+    Safely resolves a domain to IP addresses via standard socket lookup.
+    Operates without fetching remote HTTP content, keeping the analyst secure.
+    """
+    if not hostname:
+        return {"status": "empty", "ips": [], "error": "No hostname provided"}
+
+    host_clean = hostname.split(":")[0].strip()
+
+    # Check if already raw IP
+    try:
+        ipaddress.ip_address(host_clean)
+        return {"status": "raw_ip", "ips": [host_clean], "is_ip": True, "error": None}
+    except ValueError:
+        pass
+
+    try:
+        old_timeout = socket.getdefaulttimeout()
+        socket.setdefaulttimeout(timeout)
+        try:
+            addr_info = socket.getaddrinfo(host_clean, None, socket.AF_UNSPEC, socket.SOCK_STREAM)
+            ips = list(dict.fromkeys(info[4][0] for info in addr_info))
+            return {"status": "resolved", "ips": ips, "is_ip": False, "error": None}
+        finally:
+            socket.setdefaulttimeout(old_timeout)
+    except socket.gaierror as e:
+        return {"status": "nxdomain", "ips": [], "is_ip": False, "error": f"NXDOMAIN ({e.strerror})"}
+    except Exception as e:
+        return {"status": "error", "ips": [], "is_ip": False, "error": str(e)}
 
 
 # =============================================================================
@@ -417,6 +464,17 @@ def display_audit_card(result: dict):
     print(f"\n{C_CYAN}{'-' * 82}{C_RESET}")
     print(f"{C_WHITE}{C_BRIGHT}[TARGET URL]{C_RESET} : {result['url']}")
     print(f"{C_WHITE}[HOSTNAME]  {C_RESET} : {result['hostname'] or 'N/A'}")
+    
+    # Show DNS info if available
+    dns_info = result.get("dns_info")
+    if dns_info:
+        if dns_info["status"] == "resolved":
+            print(f"{C_WHITE}[RESOLVED IP]{C_RESET}: {C_GREEN}{', '.join(dns_info['ips'][:3])}{C_RESET} {C_DIM}(Live DNS Lookup){C_RESET}")
+        elif dns_info["status"] == "raw_ip":
+            print(f"{C_WHITE}[RESOLVED IP]{C_RESET}: {C_RED}{dns_info['ips'][0]}{C_RESET} {C_DIM}(Direct IP Host){C_RESET}")
+        elif dns_info["status"] == "nxdomain":
+            print(f"{C_WHITE}[RESOLVED IP]{C_RESET}: {C_YELLOW}NXDOMAIN{C_RESET} {C_DIM}(Domain Unregistered or Suspended){C_RESET}")
+
     print(f"{C_WHITE}[RISK SCORE]{C_RESET} : {C_BRIGHT}{score}/100{C_RESET}  |  Tier: {color_lvl}")
     print(f"{C_WHITE}[VERDICT]   {C_RESET} : {C_DIM}{result['verdict']}{C_RESET}")
     print(f"{C_CYAN}{'-' * 82}{C_RESET}")
@@ -508,10 +566,35 @@ def run_benchmark(benchmark_file="test_urls.json", output_dir="reports"):
     print(f"{C_WHITE}[★] Plaintext Audit Log Saved       : {C_GREEN}{txt_path}{C_RESET}")
 
 
+def run_interactive_cli():
+    """Interactive command-line loop allowing analysts to scan multiple URLs."""
+    print(f"{C_CYAN}  Interactive CLI Shell Ready. Type 'test' for benchmark, 'exit' or 'q' to quit.{C_RESET}\n")
+    while True:
+        try:
+            print(f"{C_YELLOW}[?] Enter any URL to evaluate for phishing indicators:{C_RESET}")
+            user_input = input(f"{C_CYAN}    └── URL > {C_RESET}").strip()
+            if not user_input:
+                continue
+            if user_input.lower() in ("exit", "quit", "q"):
+                print(f"{C_GREEN}[*] Exiting PEER'S Phish Detector. Stay safe!{C_RESET}")
+                break
+            if user_input.lower() == "test":
+                run_benchmark()
+                continue
+
+            result = score_url(user_input)
+            if result.get("hostname"):
+                dns_info = resolve_dns(result["hostname"])
+                result["dns_info"] = dns_info
+            display_audit_card(result)
+        except (KeyboardInterrupt, EOFError):
+            print(f"\n{C_RED}[!] Session closed.{C_RESET}")
+            break
+
+
 def main():
-    print(BANNER)
     parser = argparse.ArgumentParser(
-        description="PEER'S Phish Detector — Lexical URL Risk Scorer (Sqrock Internship Day 03)"
+        description="PEER'S Phish Detector — URL Anatomy & Heuristic Threat Scorer"
     )
     parser.add_argument(
         "url",
@@ -520,33 +603,55 @@ def main():
         help="Single URL to inspect (e.g. 'https://paypa1-security.com')",
     )
     parser.add_argument(
+        "--cli",
+        action="store_true",
+        help="Force command-line interface (CLI) mode instead of graphical UI",
+    )
+    parser.add_argument(
         "--test",
         action="store_true",
         help="Run the automated 10-URL benchmark test suite",
     )
+    parser.add_argument(
+        "--no-dns",
+        action="store_true",
+        help="Skip live DNS resolution",
+    )
 
     args = parser.parse_args()
 
+    # 1. Benchmark suite
     if args.test:
+        print(BANNER)
         run_benchmark()
         return
 
-    target = args.url
-    if not target:
-        try:
-            print(f"{C_YELLOW}[?] Enter a URL to evaluate for phishing indicators{C_RESET}")
-            print(f"    {C_DIM}(Or press ENTER to run the 10-URL benchmark suite){C_RESET}")
-            user_input = input(f"{C_CYAN}    └── URL > {C_RESET}").strip()
-            if not user_input:
-                run_benchmark()
-                return
-            target = user_input
-        except (KeyboardInterrupt, EOFError):
-            print(f"\n{C_RED}[!] Inspection aborted by user.{C_RESET}")
-            sys.exit(0)
+    # 2. Direct URL argument in CLI
+    if args.url:
+        print(BANNER)
+        result = score_url(args.url)
+        if not args.no_dns and result.get("hostname"):
+            dns_info = resolve_dns(result["hostname"])
+            result["dns_info"] = dns_info
+        display_audit_card(result)
+        return
 
-    result = score_url(target)
-    display_audit_card(result)
+    # 3. Explicit CLI mode requested
+    if args.cli:
+        print(BANNER)
+        run_interactive_cli()
+        return
+
+    # 4. Default: Launch Graphical User Interface (GUI)
+    try:
+        from gui import launch_gui
+        launch_gui()
+    except Exception as e:
+        # Fall back to CLI if headless or display is unavailable
+        print(BANNER)
+        print(f"{C_YELLOW}[i] Notice: Graphical environment unavailable ({e}).{C_RESET}")
+        print(f"{C_CYAN}[i] Seamlessly falling back to interactive CLI mode...{C_RESET}\n")
+        run_interactive_cli()
 
 
 if __name__ == "__main__":
