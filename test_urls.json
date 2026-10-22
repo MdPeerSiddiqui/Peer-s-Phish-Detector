@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "url": "https://example.com",
+    "description": "Standard legitimate HTTPS domain (RFC 2606 baseline)",
+    "expected_risk": "Low Risk",
+    "notes": "Expected baseline with zero suspicious indicators (0/100)."
+  },
+  {
+    "id": 2,
+    "url": "http://example.com",
+    "description": "Plain unencrypted HTTP website without TLS",
+    "expected_risk": "Medium Risk",
+    "notes": "Triggers unencrypted HTTP protocol rule (+20 pts)."
+  },
+  {
+    "id": 3,
+    "url": "http://192.168.1.100/login",
+    "description": "Raw IPv4 address used in place of a registered domain name",
+    "expected_risk": "High Risk",
+    "notes": "Triggers raw IP address (+35 pts), HTTP (+20 pts), and login keyword (+10 pts) = 65 pts."
+  },
+  {
+    "id": 4,
+    "url": "https://paypal.com.account-verify.security-update.evil.com/login",
+    "description": "Subdomain abuse attempting to mimic PayPal on a deep nested hostname",
+    "expected_risk": "High Risk",
+    "notes": "Triggers subdomain abuse (+25 pts), sensitive keywords (+25 pts), and excessive length (+10 pts) = 60 pts."
+  },
+  {
+    "id": 5,
+    "url": "https://paypa1-security.com/signin",
+    "description": "Brand typosquatting using visual lookalike numeral '1' for letter 'l'",
+    "expected_risk": "High Risk",
+    "notes": "Triggers typosquatting heuristic (+30 pts) and security keyword (+25 pts) = 55 pts."
+  },
+  {
+    "id": 6,
+    "url": "https://bit.ly/secure-login-39x",
+    "description": "Known URL shortener masking the true destination host",
+    "expected_risk": "Medium Risk",
+    "notes": "Triggers URL shortener masking indicator (+25 pts) and path keywords (+10 pts) = 35 pts."
+  },
+  {
+    "id": 7,
+    "url": "http://banking-portal-update.xyz/verify",
+    "description": "Suspicious high-abuse TLD (.xyz) combined with unencrypted HTTP & banking keywords",
+    "expected_risk": "High Risk",
+    "notes": "Triggers HTTP (+20 pts), high-risk TLD (+15 pts), and banking/verify keywords (+25 pts) = 60 pts."
+  },
+  {
+    "id": 8,
+    "url": "https://login-verify-account-update-billing-auth-portal.com",
+    "description": "Extreme hyphen density and multiple concatenated credential keywords",
+    "expected_risk": "High Risk",
+    "notes": "Analyst benchmark expected High Risk (>=50). Static heuristic scores Medium Risk (35-40 pts). Illustrates the 'HTTPS Phishing Paradox' where valid TLS and .com TLD can mask social engineering domains in lexical-only scoring."
+  },
+  {
+    "id": 9,
+    "url": "https://github.com/login",
+    "description": "Reputable legitimate service with legitimate login path",
+    "expected_risk": "Low Risk",
+    "notes": "Sensitive keyword appears only in path on a reputable domain (+10 pts). Preserves low risk."
+  },
+  {
+    "id": 10,
+    "url": "http://192.168.1.50/paypal-update/account.php?verify=token",
+    "description": "Aggressive composite phishing lure (Raw IP + HTTP + PayPal imitation + sensitive query params)",
+    "expected_risk": "Critical Risk",
+    "notes": "Triggers raw IP (+35 pts), HTTP (+20 pts), brand in path (+15 pts), and query keywords (+10 pts) = 80 pts."
+  }
+]

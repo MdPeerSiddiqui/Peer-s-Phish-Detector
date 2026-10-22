@@ -1,0 +1,73 @@
+PEER'S PHISH DETECTOR — 10-URL BENCHMARK RESULTS
+================================================================================
+ID #1 | https://example.com
+Description: Standard legitimate HTTPS domain (RFC 2606 baseline)
+Expected: Low Risk | Actual: Low Risk (0/100)
+Indicators Triggered: 0
+--------------------------------------------------------------------------------
+ID #2 | http://example.com
+Description: Plain unencrypted HTTP website without TLS
+Expected: Medium Risk | Actual: Medium Risk (20/100)
+Indicators Triggered: 1
+  - Unencrypted Protocol (+20 pts): Unencrypted HTTP protocol in use (+20 pts). Lacks TLS certificate.
+--------------------------------------------------------------------------------
+ID #3 | http://192.168.1.100/login
+Description: Raw IPv4 address used in place of a registered domain name
+Expected: High Risk | Actual: High Risk (65/100)
+Indicators Triggered: 3
+  - Unencrypted Protocol (+20 pts): Unencrypted HTTP protocol in use (+20 pts). Lacks TLS certificate.
+  - Raw IP Hostname (+35 pts): Raw IP address used as hostname (192.168.1.100) (+35 pts). Bypasses domain identity records.
+  - Sensitive Action Keywords (+10 pts): Action keyword(s) in URL path/query: login (+10 pts).
+--------------------------------------------------------------------------------
+ID #4 | https://paypal.com.account-verify.security-update.evil.com/login
+Description: Subdomain abuse attempting to mimic PayPal on a deep nested hostname
+Expected: High Risk | Actual: High Risk (60/100)
+Indicators Triggered: 3
+  - Subdomain Abuse (+25 pts): Excessive subdomain depth (6 labels) (+20 pts). Target brand 'paypal' spoofed inside subdomain prefix (+15 pts).
+  - Sensitive Action Keywords (+25 pts): Sensitive credential keyword(s) in hostname: verify, account (+20 pts). Action keyword(s) in URL path/query: login (+10 pts).
+  - Character Density & Length (+10 pts): Excessive hostname label length (50 characters) (+10 pts).
+--------------------------------------------------------------------------------
+ID #5 | https://paypa1-security.com/signin
+Description: Brand typosquatting using visual lookalike numeral '1' for letter 'l'
+Expected: High Risk | Actual: High Risk (55/100)
+Indicators Triggered: 2
+  - Sensitive Action Keywords (+25 pts): Sensitive credential keyword(s) in hostname: security (+20 pts). Action keyword(s) in URL path/query: signin (+10 pts).
+  - Brand Typosquatting (+30 pts): Brand lookalike / typosquatting detected targeting 'paypal' (+30 pts).
+--------------------------------------------------------------------------------
+ID #6 | https://bit.ly/secure-login-39x
+Description: Known URL shortener masking the true destination host
+Expected: Medium Risk | Actual: Medium Risk (35/100)
+Indicators Triggered: 2
+  - Sensitive Action Keywords (+10 pts): Action keyword(s) in URL path/query: login, secure (+10 pts).
+  - URL Shortener Masking (+25 pts): Known URL shortener service (bit.ly) (+25 pts). Destination host concealed.
+--------------------------------------------------------------------------------
+ID #7 | http://banking-portal-update.xyz/verify
+Description: Suspicious high-abuse TLD (.xyz) combined with unencrypted HTTP & banking keywords
+Expected: High Risk | Actual: High Risk (60/100)
+Indicators Triggered: 3
+  - Unencrypted Protocol (+20 pts): Unencrypted HTTP protocol in use (+20 pts). Lacks TLS certificate.
+  - Sensitive Action Keywords (+25 pts): Sensitive credential keyword(s) in hostname: banking, update (+20 pts). Action keyword(s) in URL path/query: verify (+10 pts).
+  - Suspicious TLD Extension (+15 pts): High-abuse top-level domain extension detected (.xyz) (+15 pts).
+--------------------------------------------------------------------------------
+ID #8 | https://login-verify-account-update-billing-auth-portal.com
+Description: Extreme hyphen density and multiple concatenated credential keywords
+Expected: High Risk | Actual: Medium Risk (35/100)
+Indicators Triggered: 2
+  - Sensitive Action Keywords (+20 pts): Sensitive credential keyword(s) in hostname: login, verify (+20 pts).
+  - Character Density & Length (+15 pts): Abnormally high hyphen density in hostname (6 hyphens) (+10 pts). Excessive hostname label length (51 characters) (+10 pts).
+--------------------------------------------------------------------------------
+ID #9 | https://github.com/login
+Description: Reputable legitimate service with legitimate login path
+Expected: Low Risk | Actual: Low Risk (10/100)
+Indicators Triggered: 1
+  - Sensitive Action Keywords (+10 pts): Action keyword(s) in URL path/query: login (+10 pts).
+--------------------------------------------------------------------------------
+ID #10 | http://192.168.1.50/paypal-update/account.php?verify=token
+Description: Aggressive composite phishing lure (Raw IP + HTTP + PayPal imitation + sensitive query params)
+Expected: Critical Risk | Actual: Critical Risk (80/100)
+Indicators Triggered: 4
+  - Unencrypted Protocol (+20 pts): Unencrypted HTTP protocol in use (+20 pts). Lacks TLS certificate.
+  - Raw IP Hostname (+35 pts): Raw IP address used as hostname (192.168.1.50) (+35 pts). Bypasses domain identity records.
+  - Sensitive Action Keywords (+10 pts): Action keyword(s) in URL path/query: verify, account (+10 pts).
+  - Brand Typosquatting (+15 pts): Brand name 'paypal' targeted inside URL path on untrusted host (+15 pts).
+--------------------------------------------------------------------------------

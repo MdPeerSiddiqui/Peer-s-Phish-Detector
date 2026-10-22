@@ -1,0 +1,226 @@
+[
+    {
+        "id": 1,
+        "url": "https://example.com",
+        "description": "Standard legitimate HTTPS domain (RFC 2606 baseline)",
+        "expected_risk": "Low Risk",
+        "actual_score": 0,
+        "actual_risk": "Low Risk",
+        "indicators_triggered": 0,
+        "is_match": true,
+        "breakdown": []
+    },
+    {
+        "id": 2,
+        "url": "http://example.com",
+        "description": "Plain unencrypted HTTP website without TLS",
+        "expected_risk": "Medium Risk",
+        "actual_score": 20,
+        "actual_risk": "Medium Risk",
+        "indicators_triggered": 1,
+        "is_match": true,
+        "breakdown": [
+            {
+                "factor": "Unencrypted Protocol",
+                "points": 20,
+                "reason": "Unencrypted HTTP protocol in use (+20 pts). Lacks TLS certificate."
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "url": "http://192.168.1.100/login",
+        "description": "Raw IPv4 address used in place of a registered domain name",
+        "expected_risk": "High Risk",
+        "actual_score": 65,
+        "actual_risk": "High Risk",
+        "indicators_triggered": 3,
+        "is_match": true,
+        "breakdown": [
+            {
+                "factor": "Unencrypted Protocol",
+                "points": 20,
+                "reason": "Unencrypted HTTP protocol in use (+20 pts). Lacks TLS certificate."
+            },
+            {
+                "factor": "Raw IP Hostname",
+                "points": 35,
+                "reason": "Raw IP address used as hostname (192.168.1.100) (+35 pts). Bypasses domain identity records."
+            },
+            {
+                "factor": "Sensitive Action Keywords",
+                "points": 10,
+                "reason": "Action keyword(s) in URL path/query: login (+10 pts)."
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "url": "https://paypal.com.account-verify.security-update.evil.com/login",
+        "description": "Subdomain abuse attempting to mimic PayPal on a deep nested hostname",
+        "expected_risk": "High Risk",
+        "actual_score": 60,
+        "actual_risk": "High Risk",
+        "indicators_triggered": 3,
+        "is_match": true,
+        "breakdown": [
+            {
+                "factor": "Subdomain Abuse",
+                "points": 25,
+                "reason": "Excessive subdomain depth (6 labels) (+20 pts). Target brand 'paypal' spoofed inside subdomain prefix (+15 pts)."
+            },
+            {
+                "factor": "Sensitive Action Keywords",
+                "points": 25,
+                "reason": "Sensitive credential keyword(s) in hostname: verify, account (+20 pts). Action keyword(s) in URL path/query: login (+10 pts)."
+            },
+            {
+                "factor": "Character Density & Length",
+                "points": 10,
+                "reason": "Excessive hostname label length (50 characters) (+10 pts)."
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "url": "https://paypa1-security.com/signin",
+        "description": "Brand typosquatting using visual lookalike numeral '1' for letter 'l'",
+        "expected_risk": "High Risk",
+        "actual_score": 55,
+        "actual_risk": "High Risk",
+        "indicators_triggered": 2,
+        "is_match": true,
+        "breakdown": [
+            {
+                "factor": "Sensitive Action Keywords",
+                "points": 25,
+                "reason": "Sensitive credential keyword(s) in hostname: security (+20 pts). Action keyword(s) in URL path/query: signin (+10 pts)."
+            },
+            {
+                "factor": "Brand Typosquatting",
+                "points": 30,
+                "reason": "Brand lookalike / typosquatting detected targeting 'paypal' (+30 pts)."
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "url": "https://bit.ly/secure-login-39x",
+        "description": "Known URL shortener masking the true destination host",
+        "expected_risk": "Medium Risk",
+        "actual_score": 35,
+        "actual_risk": "Medium Risk",
+        "indicators_triggered": 2,
+        "is_match": true,
+        "breakdown": [
+            {
+                "factor": "Sensitive Action Keywords",
+                "points": 10,
+                "reason": "Action keyword(s) in URL path/query: login, secure (+10 pts)."
+            },
+            {
+                "factor": "URL Shortener Masking",
+                "points": 25,
+                "reason": "Known URL shortener service (bit.ly) (+25 pts). Destination host concealed."
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "url": "http://banking-portal-update.xyz/verify",
+        "description": "Suspicious high-abuse TLD (.xyz) combined with unencrypted HTTP & banking keywords",
+        "expected_risk": "High Risk",
+        "actual_score": 60,
+        "actual_risk": "High Risk",
+        "indicators_triggered": 3,
+        "is_match": true,
+        "breakdown": [
+            {
+                "factor": "Unencrypted Protocol",
+                "points": 20,
+                "reason": "Unencrypted HTTP protocol in use (+20 pts). Lacks TLS certificate."
+            },
+            {
+                "factor": "Sensitive Action Keywords",
+                "points": 25,
+                "reason": "Sensitive credential keyword(s) in hostname: banking, update (+20 pts). Action keyword(s) in URL path/query: verify (+10 pts)."
+            },
+            {
+                "factor": "Suspicious TLD Extension",
+                "points": 15,
+                "reason": "High-abuse top-level domain extension detected (.xyz) (+15 pts)."
+            }
+        ]
+    },
+    {
+        "id": 8,
+        "url": "https://login-verify-account-update-billing-auth-portal.com",
+        "description": "Extreme hyphen density and multiple concatenated credential keywords",
+        "expected_risk": "High Risk",
+        "actual_score": 35,
+        "actual_risk": "Medium Risk",
+        "indicators_triggered": 2,
+        "is_match": false,
+        "breakdown": [
+            {
+                "factor": "Sensitive Action Keywords",
+                "points": 20,
+                "reason": "Sensitive credential keyword(s) in hostname: login, verify (+20 pts)."
+            },
+            {
+                "factor": "Character Density & Length",
+                "points": 15,
+                "reason": "Abnormally high hyphen density in hostname (6 hyphens) (+10 pts). Excessive hostname label length (51 characters) (+10 pts)."
+            }
+        ]
+    },
+    {
+        "id": 9,
+        "url": "https://github.com/login",
+        "description": "Reputable legitimate service with legitimate login path",
+        "expected_risk": "Low Risk",
+        "actual_score": 10,
+        "actual_risk": "Low Risk",
+        "indicators_triggered": 1,
+        "is_match": true,
+        "breakdown": [
+            {
+                "factor": "Sensitive Action Keywords",
+                "points": 10,
+                "reason": "Action keyword(s) in URL path/query: login (+10 pts)."
+            }
+        ]
+    },
+    {
+        "id": 10,
+        "url": "http://192.168.1.50/paypal-update/account.php?verify=token",
+        "description": "Aggressive composite phishing lure (Raw IP + HTTP + PayPal imitation + sensitive query params)",
+        "expected_risk": "Critical Risk",
+        "actual_score": 80,
+        "actual_risk": "Critical Risk",
+        "indicators_triggered": 4,
+        "is_match": true,
+        "breakdown": [
+            {
+                "factor": "Unencrypted Protocol",
+                "points": 20,
+                "reason": "Unencrypted HTTP protocol in use (+20 pts). Lacks TLS certificate."
+            },
+            {
+                "factor": "Raw IP Hostname",
+                "points": 35,
+                "reason": "Raw IP address used as hostname (192.168.1.50) (+35 pts). Bypasses domain identity records."
+            },
+            {
+                "factor": "Sensitive Action Keywords",
+                "points": 10,
+                "reason": "Action keyword(s) in URL path/query: verify, account (+10 pts)."
+            },
+            {
+                "factor": "Brand Typosquatting",
+                "points": 15,
+                "reason": "Brand name 'paypal' targeted inside URL path on untrusted host (+15 pts)."
+            }
+        ]
+    }
+]
