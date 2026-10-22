@@ -1,6 +1,7 @@
 """
 =============================================================================
-PEER'S PHISH DETECTOR — WEB SOC APPLICATION & RESTful API
+PEER'S PHISH DETECTOR v1.0 — OFFICIAL PRODUCTION RELEASE
+Cute Kitty Pink Claymorphism Edition
 Sqrock IT Solution | Alpha 2 Cybersecurity Internship (Day 03)
 Author: Md Peer Siddiqui
 Repository: https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector
@@ -10,9 +11,14 @@ Repository: https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector
 import os
 import sys
 import json
+import logging
 import threading
 import webbrowser
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, cli
+
+# Silence Werkzeug/Flask development server warning banner for clean official terminal
+cli.show_server_banner = lambda *args: None
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 # Add current folder to sys.path
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,7 +33,7 @@ app = Flask(__name__, template_folder="templates")
 
 @app.route("/")
 def index():
-    """Serve the modern dark-themed web dashboard."""
+    """Serve the Cute Kitty Pink Claymorphism Web Dashboard."""
     return render_template("index.html")
 
 
@@ -110,9 +116,10 @@ def open_browser(port):
 def launch_web_server(port=5000):
     """Launch the Web SOC application and open the browser."""
     print("\n" + "=" * 70)
-    print("  ⚡ PEER'S PHISH DETECTOR — WEB APPLICATION & HEURISTIC ENGINE ⚡")
+    print("  🐾 PEER'S PHISH DETECTOR v1.0 — OFFICIAL RELEASE 🎀")
     print("  Sqrock IT Solution | Alpha 2 Cybersecurity Internship (Day 03)")
     print(f"  --> Local Web Dashboard: http://127.0.0.1:{port}")
+    print("  --> Status: ONLINE & READY (Press Ctrl+C to Stop)")
     print("=" * 70 + "\n")
 
     threading.Thread(target=open_browser, args=(port,), daemon=True).start()

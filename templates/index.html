@@ -3,25 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PEER'S Phish Detector — URL Anatomy & Heuristic Threat Scorer</title>
+  <title>PEER'S Phish Detector — Cute Kitty Edition (Official Release)</title>
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #111827;
-      --card-sub: #162032;
-      --border: #1f293d;
-      --border-focus: #0284c7;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --cyan: #06b6d4;
+      --bg: #fdf2f8;
+      --bg-gradient: linear-gradient(135deg, #fff1f2 0%, #fdf2f8 40%, #fce7f3 100%);
+      --card-bg: #ffffff;
+      --card-sub: #fff5f7;
+      --border-pink: #fbcfe8;
+      --text-main: #4c1d35;
+      --text-sub: #831843;
+      --text-muted: #9d4c6c;
+      --pink-primary: #f43f5e;
+      --pink-secondary: #ec4899;
+      --pink-deep: #be185d;
+      --pink-accent: #fb7185;
+      --clay-shadow: 8px 12px 24px rgba(244, 63, 94, 0.12), -6px -6px 16px rgba(255, 255, 255, 0.9), inset 2px 2px 4px rgba(255, 255, 255, 0.9), inset -2px -2px 6px rgba(244, 114, 182, 0.15);
+      --clay-inset: inset 3px 3px 6px rgba(244, 114, 182, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+      --clay-btn-shadow: 4px 6px 14px rgba(244, 63, 94, 0.35), inset 2px 2px 3px rgba(255, 255, 255, 0.6), inset -2px -2px 3px rgba(190, 18, 60, 0.3);
       --low: #10b981;
       --med: #f59e0b;
       --high: #f97316;
       --crit: #ef4444;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      --font-mono: "JetBrains Mono", "SF Mono", Consolas, Menlo, Monaco, monospace;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Quicksand", "Nunito", sans-serif;
+      --font-mono: "JetBrains Mono", Consolas, "SF Mono", monospace;
     }
 
     * {
@@ -31,9 +36,9 @@
     }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      font-family: var(--font-family);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -41,18 +46,19 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Header Nav */
+    /* Top Navigation Header */
     header {
-      background: rgba(17, 24, 39, 0.85);
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid var(--border-pink);
       position: sticky;
       top: 0;
       z-index: 50;
+      box-shadow: 0 4px 20px rgba(244, 63, 94, 0.08);
     }
 
     .nav-container {
-      max-width: 1180px;
+      max-width: 1160px;
       margin: 0 auto;
       padding: 0.9rem 1.5rem;
       display: flex;
@@ -63,180 +69,197 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
       text-decoration: none;
-      color: var(--text);
+      color: var(--text-main);
     }
 
-    .brand-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #0284c7, #2563eb);
+    .kitty-avatar {
+      width: 44px;
+      height: 44px;
+      background: #ffffff;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 16px rgba(2, 132, 199, 0.35);
+      border: 2px solid #fda4af;
+      box-shadow: var(--clay-shadow);
+      position: relative;
+    }
+
+    .bow-icon {
+      font-size: 1.5rem;
+      line-height: 1;
     }
 
     .brand-title {
-      font-weight: 700;
-      font-size: 1.125rem;
+      font-weight: 800;
+      font-size: 1.25rem;
       letter-spacing: -0.02em;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
     .brand-badge {
-      font-size: 0.6875rem;
-      background: #0f2c4a;
-      color: var(--cyan);
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      border: 1px solid rgba(6, 182, 212, 0.3);
-      font-weight: 600;
-      letter-spacing: 0.04em;
+      font-size: 0.7rem;
+      background: #ffe4e6;
+      color: var(--pink-deep);
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      border: 1px solid #fecdd3;
+      font-weight: 800;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .brand-sub {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
+      font-weight: 600;
     }
 
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
     }
 
+    /* Clay Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 0.9rem;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      border-radius: 6px;
+      gap: 0.45rem;
+      padding: 0.6rem 1.15rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 9999px;
       text-decoration: none;
       cursor: pointer;
-      transition: all 0.18s ease;
-      border: 1px solid transparent;
+      transition: all 0.16s ease;
+      border: none;
       outline: none;
+      user-select: none;
     }
 
     .btn-secondary {
-      background: var(--card-sub);
-      color: var(--text);
-      border-color: var(--border);
+      background: #ffffff;
+      color: var(--text-sub);
+      box-shadow: 4px 6px 12px rgba(244, 63, 94, 0.1), inset 1px 1px 2px rgba(255, 255, 255, 0.9);
+      border: 1.5px solid #fbcfe8;
     }
 
     .btn-secondary:hover {
-      background: #1f2d45;
-      border-color: #334568;
+      background: #fff5f7;
+      transform: translateY(-2px);
+      box-shadow: 6px 8px 16px rgba(244, 63, 94, 0.15);
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #0284c7, #2563eb);
+      background: linear-gradient(145deg, #fb7185, #f43f5e);
       color: white;
-      box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3);
+      box-shadow: var(--clay-btn-shadow);
     }
 
     .btn-primary:hover {
-      opacity: 0.92;
-      box-shadow: 0 4px 16px rgba(2, 132, 199, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 6px 10px 20px rgba(244, 63, 94, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
     }
 
     /* Main Container */
     main {
       flex: 1;
-      max-width: 1180px;
+      max-width: 1160px;
       width: 100%;
       margin: 0 auto;
-      padding: 2.5rem 1.5rem 3.5rem;
+      padding: 2.25rem 1.5rem 3.5rem;
     }
 
     /* Hero Section */
     .hero {
       text-align: center;
-      margin-bottom: 2.25rem;
+      margin-bottom: 2rem;
     }
 
     .hero-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(2, 132, 199, 0.12);
-      border: 1px solid rgba(2, 132, 199, 0.25);
-      color: var(--cyan);
-      padding: 0.25rem 0.75rem;
+      background: #ffffff;
+      border: 1.5px solid #fbcfe8;
+      color: var(--pink-deep);
+      padding: 0.35rem 0.95rem;
       border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-bottom: 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.85rem;
+      box-shadow: 0 4px 12px rgba(244, 63, 94, 0.08);
     }
 
-    .hero-pulse {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--low);
-      box-shadow: 0 0 8px var(--low);
-      animation: pulse 2s infinite;
+    .hero-bow {
+      animation: wiggle 2s infinite ease-in-out;
+      display: inline-block;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.3); }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-8deg); }
+      75% { transform: rotate(8deg); }
     }
 
     .hero h1 {
-      font-size: 2.25rem;
-      font-weight: 800;
+      font-size: 2.4rem;
+      font-weight: 900;
       letter-spacing: -0.03em;
       margin-bottom: 0.5rem;
-      background: linear-gradient(180deg, #ffffff 40%, #cbd5e1 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text-main);
     }
 
     .hero p {
       color: var(--text-muted);
-      font-size: 0.9375rem;
-      max-width: 640px;
+      font-size: 0.98rem;
+      max-width: 620px;
       margin: 0 auto;
+      font-weight: 600;
     }
 
-    /* Input Bar Card */
-    .search-card {
+    /* Clay Card Component */
+    .clay-card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
+      border-radius: 24px;
+      border: 2px solid #ffffff;
+      box-shadow: var(--clay-shadow);
+      padding: 1.6rem;
       margin-bottom: 1.75rem;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      position: relative;
     }
 
+    /* Search & Input Box */
     .input-wrapper {
       display: flex;
       align-items: center;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.35rem 0.5rem 0.35rem 1rem;
+      background: var(--card-sub);
+      border-radius: 9999px;
+      padding: 0.45rem 0.6rem 0.45rem 1.25rem;
+      box-shadow: var(--clay-inset);
+      border: 2px solid #fecdd3;
+      gap: 0.6rem;
       transition: all 0.2s ease;
-      gap: 0.5rem;
     }
 
     .input-wrapper:focus-within {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+      border-color: var(--pink-primary);
+      box-shadow: inset 3px 3px 6px rgba(244, 63, 94, 0.25), 0 0 0 3px rgba(244, 63, 94, 0.15);
+      background: #ffffff;
     }
 
     .search-icon {
-      color: var(--text-muted);
-      flex-shrink: 0;
+      font-size: 1.2rem;
     }
 
     .url-input {
@@ -244,14 +267,16 @@
       background: transparent;
       border: none;
       outline: none;
-      color: var(--text);
+      color: var(--text-main);
       font-family: var(--font-mono);
-      font-size: 0.9375rem;
+      font-size: 0.95rem;
+      font-weight: 600;
       padding: 0.5rem 0;
     }
 
     .url-input::placeholder {
-      color: #475569;
+      color: #be8fa2;
+      font-family: var(--font-family);
     }
 
     .input-btn-group {
@@ -261,8 +286,8 @@
     }
 
     .btn-scan {
-      padding: 0.65rem 1.4rem;
-      font-size: 0.875rem;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.9rem;
     }
 
     /* Options & Presets Bar */
@@ -271,88 +296,89 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      margin-top: 1rem;
-      gap: 0.75rem;
-      font-size: 0.8125rem;
+      margin-top: 1.1rem;
+      gap: 0.85rem;
     }
 
     .presets-container {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 0.4rem;
+      gap: 0.45rem;
     }
 
     .preset-label {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      margin-right: 0.3rem;
+      color: var(--text-sub);
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-right: 0.2rem;
     }
 
     .preset-chip {
-      background: var(--card-sub);
-      color: #94a3b8;
-      border: 1px solid var(--border);
+      background: #fff0f3;
+      color: var(--text-sub);
+      border: 1.5px solid #fecdd3;
       border-radius: 9999px;
-      padding: 0.2rem 0.65rem;
-      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.76rem;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.15s ease;
+      box-shadow: 2px 3px 6px rgba(244, 63, 94, 0.08);
       user-select: none;
     }
 
     .preset-chip:hover {
-      background: #1f2d45;
-      color: var(--text);
-      border-color: #3b82f6;
+      background: #ffe4e6;
+      border-color: #fb7185;
+      transform: translateY(-1px);
     }
 
     .dns-toggle {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
-      color: var(--text-muted);
-      font-size: 0.8125rem;
+      gap: 0.5rem;
+      color: var(--text-sub);
+      font-size: 0.82rem;
+      font-weight: 700;
       cursor: pointer;
       user-select: none;
     }
 
     .dns-toggle input {
-      accent-color: var(--accent);
+      accent-color: var(--pink-primary);
+      width: 17px;
+      height: 17px;
       cursor: pointer;
     }
 
     /* Results Dashboard Grid */
     .results-grid {
       display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 1.25rem;
-      margin-bottom: 1.5rem;
-      animation: fadeIn 0.3s ease-out;
+      grid-template-columns: 360px 1fr;
+      gap: 1.4rem;
+      margin-bottom: 1.6rem;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.97) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
     }
 
     /* Score Gauge Card */
     .score-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.75rem 1.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+      padding: 2rem 1.6rem;
     }
 
     .gauge-wrapper {
       position: relative;
-      width: 170px;
-      height: 170px;
+      width: 180px;
+      height: 180px;
       margin-bottom: 1rem;
     }
 
@@ -364,17 +390,17 @@
 
     .gauge-bg {
       fill: none;
-      stroke: #1e293b;
-      stroke-width: 10;
+      stroke: #ffe4e6;
+      stroke-width: 12;
     }
 
     .gauge-progress {
       fill: none;
-      stroke-width: 10;
+      stroke-width: 12;
       stroke-linecap: round;
       stroke-dasharray: 440;
       stroke-dashoffset: 440;
-      transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+      transition: stroke-dashoffset 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.4s ease;
     }
 
     .gauge-center {
@@ -387,213 +413,228 @@
       align-items: center;
     }
 
+    .score-kitty-bow {
+      font-size: 1.4rem;
+      margin-bottom: 0.1rem;
+    }
+
     .score-number {
-      font-size: 2.75rem;
-      font-weight: 800;
+      font-size: 2.85rem;
+      font-weight: 900;
       letter-spacing: -0.04em;
       line-height: 1;
+      color: var(--text-main);
     }
 
     .score-denom {
       font-size: 0.75rem;
       color: var(--text-muted);
-      font-weight: 600;
-      margin-top: 0.15rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
     }
 
     .tier-pill {
-      font-size: 0.8125rem;
-      font-weight: 700;
-      padding: 0.3rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 0.35rem 1rem;
       border-radius: 9999px;
       letter-spacing: 0.03em;
       margin-bottom: 0.75rem;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.06);
     }
 
     .verdict-text {
-      color: var(--text-muted);
-      font-size: 0.8125rem;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      font-weight: 600;
       line-height: 1.45;
     }
 
     .scan-meta {
       margin-top: auto;
       padding-top: 1.25rem;
-      border-top: 1px solid var(--border);
+      border-top: 2px dashed #fce7f3;
       width: 100%;
       display: flex;
       justify-content: space-between;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 700;
       color: var(--text-muted);
     }
 
     /* URL Anatomy Card */
     .anatomy-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+      padding: 1.8rem;
     }
 
     .card-title {
-      font-size: 0.9375rem;
-      font-weight: 700;
-      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 1.1rem;
+      margin-bottom: 1.2rem;
     }
 
     .anatomy-list {
       display: grid;
-      gap: 0.75rem;
+      gap: 0.85rem;
     }
 
     .anatomy-item {
       background: var(--card-sub);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
+      border: 1.5px solid #fecdd3;
+      border-radius: 16px;
+      padding: 0.85rem 1.15rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
+      box-shadow: 2px 4px 8px rgba(244, 63, 94, 0.04);
     }
 
     .anatomy-label {
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.76rem;
+      font-weight: 800;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.04em;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
     }
 
     .anatomy-val {
       font-family: var(--font-mono);
-      font-size: 0.8125rem;
-      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
       word-break: break-all;
       text-align: right;
     }
 
     .badge-protocol-safe {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--low);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.76rem;
+      font-weight: 800;
     }
 
     .badge-protocol-warn {
-      background: rgba(245, 158, 11, 0.15);
-      color: var(--med);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.76rem;
+      font-weight: 800;
     }
 
-    /* Threat Indicators Table Section */
+    /* Threat Indicators Card */
     .indicators-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+      padding: 1.8rem;
     }
 
     .indicators-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1.1rem;
+      margin-bottom: 1.2rem;
     }
 
     .indicator-count {
-      font-size: 0.75rem;
-      background: var(--card-sub);
-      color: var(--text-muted);
-      padding: 0.2rem 0.6rem;
+      font-size: 0.78rem;
+      background: #ffe4e6;
+      color: var(--pink-deep);
+      padding: 0.25rem 0.75rem;
       border-radius: 9999px;
-      border: 1px solid var(--border);
-      font-weight: 600;
+      border: 1px solid #fecdd3;
+      font-weight: 800;
     }
 
     .threat-list {
       display: grid;
-      gap: 0.65rem;
+      gap: 0.8rem;
     }
 
     .threat-item {
-      background: var(--card-sub);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 8px;
-      padding: 0.9rem 1.1rem;
+      background: #ffffff;
+      border: 2px solid #fecdd3;
+      border-radius: 18px;
+      padding: 1rem 1.25rem;
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 1rem;
+      box-shadow: var(--clay-shadow);
+      position: relative;
     }
 
-    .threat-item.crit { border-left-color: var(--crit); }
-    .threat-item.high { border-left-color: var(--high); }
-    .threat-item.med  { border-left-color: var(--med); }
-    .threat-item.low  { border-left-color: var(--low); }
-
     .threat-info h4 {
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text-main);
       margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
 
     .threat-info p {
-      font-size: 0.8125rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
-      line-height: 1.4;
+      font-weight: 600;
+      line-height: 1.45;
     }
 
     .threat-points {
       flex-shrink: 0;
       font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 0.8125rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--border);
+      font-weight: 800;
+      font-size: 0.82rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 9999px;
+      background: #ffe4e6;
+      color: var(--pink-deep);
+      border: 1px solid #fecdd3;
+      box-shadow: 2px 3px 6px rgba(244, 63, 94, 0.1);
     }
 
     .threat-clean {
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px dashed rgba(16, 185, 129, 0.35);
-      border-radius: 8px;
-      padding: 1.5rem;
+      background: #ecfdf5;
+      border: 2px dashed #a7f3d0;
+      border-radius: 20px;
+      padding: 1.75rem;
       text-align: center;
-      color: var(--low);
+      color: #065f46;
+    }
+
+    .threat-clean h4 {
+      font-size: 1.1rem;
+      font-weight: 800;
     }
 
     .threat-clean p {
-      color: var(--text-muted);
-      font-size: 0.8125rem;
-      margin-top: 0.3rem;
+      color: #047857;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 0.35rem;
     }
 
     /* Modal Styling */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
+      background: rgba(76, 29, 53, 0.5);
+      backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -606,93 +647,99 @@
     }
 
     .modal {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      max-width: 900px;
+      background: #ffffff;
+      border: 3px solid #ffffff;
+      border-radius: 28px;
+      max-width: 920px;
       width: 100%;
       max-height: 85vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-      animation: modalScale 0.2s ease-out;
-    }
-
-    @keyframes modalScale {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
+      box-shadow: 0 25px 50px -12px rgba(244, 63, 94, 0.35);
+      animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .modal-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--border);
+      padding: 1.35rem 1.6rem;
+      border-bottom: 2px solid #fce7f3;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
     .modal-title {
-      font-size: 1.125rem;
-      font-weight: 700;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--text-main);
     }
 
     .modal-close {
-      background: transparent;
+      background: #ffe4e6;
       border: none;
-      color: var(--text-muted);
-      font-size: 1.25rem;
+      color: var(--pink-deep);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.2rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 2px 3px 6px rgba(244, 63, 94, 0.15);
     }
 
     .modal-body {
-      padding: 1.5rem;
+      padding: 1.6rem;
       overflow-y: auto;
     }
 
     .benchmark-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.8125rem;
+      font-size: 0.84rem;
     }
 
     .benchmark-table th {
       text-align: left;
-      padding: 0.7rem 0.9rem;
-      background: var(--card-sub);
-      color: var(--text-muted);
-      font-weight: 600;
-      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      background: #fff1f2;
+      color: var(--text-sub);
+      font-weight: 800;
+      border-bottom: 2px solid #fecdd3;
     }
 
     .benchmark-table td {
-      padding: 0.7rem 0.9rem;
-      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #fce7f3;
       word-break: break-all;
+      font-weight: 600;
     }
 
     .match-tag {
-      font-weight: 700;
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.6875rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
     }
 
-    .match-ok { background: rgba(16, 185, 129, 0.15); color: var(--low); }
-    .match-divergent { background: rgba(245, 158, 11, 0.15); color: var(--med); }
+    .match-ok { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .match-divergent { background: #fed7aa; color: #9a3412; border: 1px solid #fdba74; }
 
     /* Footer */
     footer {
-      border-top: 1px solid var(--border);
-      background: var(--card-bg);
-      padding: 1.25rem 1.5rem;
+      border-top: 2px solid var(--border-pink);
+      background: #ffffff;
+      padding: 1.4rem 1.5rem;
       text-align: center;
-      font-size: 0.8125rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
+      font-weight: 600;
     }
 
     footer a {
-      color: var(--accent);
+      color: var(--pink-deep);
       text-decoration: none;
+      font-weight: 700;
     }
 
     footer a:hover {
@@ -712,35 +759,24 @@
   <header>
     <div class="nav-container">
       <a href="/" class="brand">
-        <div class="brand-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
+        <div class="kitty-avatar">
+          <span class="bow-icon">🎀</span>
         </div>
         <div>
           <div class="brand-title">
             PEER'S Phish Detector
-            <span class="brand-badge">v2.0 Web SOC</span>
+            <span class="brand-badge">✨ Official Release</span>
           </div>
-          <div class="brand-sub">Sqrock IT Solution | Alpha 2 Cybersecurity Track (Day 03)</div>
+          <div class="brand-sub">Sqrock IT Solution &bull; Alpha 2 Cybersecurity Track (Day 03)</div>
         </div>
       </a>
 
       <div class="nav-actions">
         <button class="btn btn-secondary" onclick="openBenchmarkModal()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-          10-URL Benchmark
+          <span>🐾</span> 10-URL Benchmark
         </button>
         <a href="/api/export-pdf" class="btn btn-primary" target="_blank">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="12" y1="18" x2="12" y2="12"/>
-            <line x1="9" y1="15" x2="15" y2="15"/>
-          </svg>
-          Executive PDF Report
+          <span>📄</span> Executive PDF Report
         </a>
       </div>
     </div>
@@ -752,33 +788,31 @@
     <!-- Hero Header -->
     <div class="hero">
       <div class="hero-badge">
-        <div class="hero-pulse"></div>
-        8-Factor Lexical URL Threat Engine &bull; Non-Intrusive Offline Safety
+        <span class="hero-bow">🎀</span>
+        <span>Hello Kitty Edition &bull; 8-Factor Heuristic Threat Scorer</span>
+        <span class="hero-bow">🎀</span>
       </div>
-      <h1>Inspect Any URL for Phishing Indicators</h1>
-      <p>Evaluate credential lures, homoglyph typosquatting, raw IP servers, manipulative subdomains, and suspicious TLDs with transparent heuristic scoring.</p>
+      <h1>Safe & Sweet URL Threat Scanner</h1>
+      <p>Inspect any link for phishing signs, brand typosquats, raw IP servers, and sneaky subdomains with pastel claymorphism simplicity!</p>
     </div>
 
     <!-- Search / Input Card -->
-    <div class="search-card">
+    <div class="clay-card">
       <div class="input-wrapper">
-        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
+        <span class="search-icon">🔍</span>
         <input 
           type="text" 
           id="urlInput" 
           class="url-input" 
-          placeholder="https://example.com/login or paste any suspicious link..."
+          placeholder="https://example.com/login or paste any suspicious link here..."
           autofocus
           autocomplete="off"
         />
         <div class="input-btn-group">
-          <button class="btn btn-secondary" onclick="handlePaste()" title="Paste from clipboard">Paste</button>
-          <button class="btn btn-secondary" onclick="handleClear()" title="Clear">Clear</button>
+          <button class="btn btn-secondary" onclick="handlePaste()" title="Paste from clipboard">📋 Paste</button>
+          <button class="btn btn-secondary" onclick="handleClear()" title="Clear">🧹 Clear</button>
           <button class="btn btn-primary btn-scan" id="btnScan" onclick="performScan()">
-            <span>Inspect URL</span>
+            <span>Inspect Link 🐾</span>
           </button>
         </div>
       </div>
@@ -786,20 +820,20 @@
       <!-- Presets & Toggles -->
       <div class="options-row">
         <div class="presets-container">
-          <span class="preset-label">Test Samples:</span>
-          <span class="preset-chip" onclick="loadSample('https://example.com')">Legitimate (Clean)</span>
-          <span class="preset-chip" onclick="loadSample('http://example.com')">Unencrypted HTTP</span>
-          <span class="preset-chip" onclick="loadSample('http://192.168.1.100/login')">Raw IP Host</span>
-          <span class="preset-chip" onclick="loadSample('https://paypa1-security.com/signin')">Typosquatting</span>
-          <span class="preset-chip" onclick="loadSample('https://paypal.com.account-verify.security-update.evil.com/login')">Subdomain Spoof</span>
-          <span class="preset-chip" onclick="loadSample('http://banking-portal-update.xyz/verify')">Disposable .xyz TLD</span>
-          <span class="preset-chip" onclick="loadSample('https://bit.ly/secure-login-39x')">URL Shortener</span>
-          <span class="preset-chip" onclick="loadSample('https://github.com/login')">Legitimate Path</span>
+          <span class="preset-label">🎀 Try a Sample:</span>
+          <span class="preset-chip" onclick="loadSample('https://example.com')">✨ Legitimate Baseline</span>
+          <span class="preset-chip" onclick="loadSample('http://example.com')">⚠️ HTTP (No TLS)</span>
+          <span class="preset-chip" onclick="loadSample('http://192.168.1.100/login')">🚨 Raw IP Host</span>
+          <span class="preset-chip" onclick="loadSample('https://paypa1-security.com/signin')">🐱 Typosquatting</span>
+          <span class="preset-chip" onclick="loadSample('https://paypal.com.account-verify.security-update.evil.com/login')">🎭 Subdomain Spoof</span>
+          <span class="preset-chip" onclick="loadSample('http://banking-portal-update.xyz/verify')">⚡ Disposable .xyz</span>
+          <span class="preset-chip" onclick="loadSample('https://bit.ly/secure-login-39x')">🔗 Shortened URL</span>
+          <span class="preset-chip" onclick="loadSample('https://github.com/login')">🌸 Legitimate Path</span>
         </div>
 
         <label class="dns-toggle">
           <input type="checkbox" id="chkDns" checked>
-          <span>Enable Live DNS Resolution</span>
+          <span>Safe Live DNS Lookup</span>
         </label>
       </div>
     </div>
@@ -811,63 +845,60 @@
       <div class="results-grid">
         
         <!-- Score & Tier Card -->
-        <div class="score-card">
+        <div class="clay-card score-card">
           <div class="gauge-wrapper">
             <svg class="gauge-svg" viewBox="0 0 160 160">
               <circle class="gauge-bg" cx="80" cy="80" r="70" />
               <circle id="gaugeProgress" class="gauge-progress" cx="80" cy="80" r="70" />
             </svg>
             <div class="gauge-center">
+              <div class="score-kitty-bow">🎀</div>
               <div id="scoreNumber" class="score-number">0</div>
               <div class="score-denom">OUT OF 100</div>
             </div>
           </div>
 
-          <div id="tierPill" class="tier-pill">LOW RISK</div>
+          <div id="tierPill" class="tier-pill">
+            <span>🐾</span> <span id="tierText">LOW RISK</span>
+          </div>
           <p id="verdictText" class="verdict-text">No suspicious lexical indicators detected.</p>
 
           <div class="scan-meta">
-            <span>Heuristic Capping: 100 Max</span>
-            <span id="scanLatency">Latency: -- ms</span>
+            <span>Max Score: 100 pts</span>
+            <span id="scanLatency">⚡ Latency: -- ms</span>
           </div>
         </div>
 
         <!-- URL Anatomy Card -->
-        <div class="anatomy-card">
+        <div class="clay-card anatomy-card">
           <div class="card-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
-              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
-              <line x1="6" y1="6" x2="6.01" y2="6"/>
-              <line x1="6" y1="18" x2="6.01" y2="18"/>
-            </svg>
-            URL Anatomical Dissection
+            <span>🔬</span> URL Anatomical Breakdown
           </div>
 
           <div class="anatomy-list">
             <div class="anatomy-item">
-              <span class="anatomy-label">Scheme / Protocol</span>
-              <span id="valScheme" class="anatomy-val badge-protocol-safe">HTTPS (TLS Encrypted)</span>
+              <span class="anatomy-label"><span>🔒</span> Protocol & TLS</span>
+              <span id="valScheme" class="anatomy-val badge-protocol-safe">HTTPS (Encrypted)</span>
             </div>
 
             <div class="anatomy-item">
-              <span class="anatomy-label">Hostname / Domain</span>
+              <span class="anatomy-label"><span>🌐</span> Hostname</span>
               <span id="valHost" class="anatomy-val">example.com</span>
             </div>
 
             <div class="anatomy-item">
-              <span class="anatomy-label">Subdomain Labels</span>
+              <span class="anatomy-label"><span>🏷️</span> Subdomains</span>
               <span id="valSubdomain" class="anatomy-val">(None)</span>
             </div>
 
             <div class="anatomy-item">
-              <span class="anatomy-label">Path & Query String</span>
+              <span class="anatomy-label"><span>📁</span> Path & Query</span>
               <span id="valPathQuery" class="anatomy-val">/</span>
             </div>
 
             <div class="anatomy-item">
-              <span class="anatomy-label">Resolved IP Address</span>
-              <span id="valDns" class="anatomy-val" style="color: var(--cyan);">93.184.216.34</span>
+              <span class="anatomy-label"><span>📡</span> Resolved IP</span>
+              <span id="valDns" class="anatomy-val" style="color: var(--pink-deep);">93.184.216.34</span>
             </div>
           </div>
         </div>
@@ -875,15 +906,10 @@
       </div>
 
       <!-- Triggered Indicators Card -->
-      <div class="indicators-card">
+      <div class="clay-card indicators-card">
         <div class="indicators-header">
           <div class="card-title" style="margin-bottom: 0;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-            Triggered Threat Indicators
+            <span>🚨</span> Triggered Threat Indicators
           </div>
           <span id="threatCount" class="indicator-count">0 Rules Flagged</span>
         </div>
@@ -901,12 +927,12 @@
   <div id="benchmarkModal" class="modal-overlay">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">🧪 10-URL Empirical Benchmark Suite</div>
+        <div class="modal-title">🐾 10-URL Empirical Benchmark Suite</div>
         <button class="modal-close" onclick="closeBenchmarkModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem;">
-          Evaluating lexical heuristics across representative baselines, homoglyphs, raw IPs, and subdomain exploits:
+        <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 1.1rem;">
+          Empirical evaluation comparing heuristic risk scoring against documented benchmark expectations:
         </p>
         <table class="benchmark-table">
           <thead>
@@ -920,7 +946,7 @@
             </tr>
           </thead>
           <tbody id="benchmarkTbody">
-            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading benchmark suite...</td></tr>
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading benchmark suite...</td></tr>
           </tbody>
         </table>
       </div>
@@ -930,7 +956,7 @@
   <!-- Footer -->
   <footer>
     <p>
-      Developed by <strong>Md Peer Siddiqui</strong> for <strong>Sqrock IT Solution</strong> | Alpha 2 Cybersecurity Internship (Day 03)
+      Crafted with 🎀 by <strong>Md Peer Siddiqui</strong> for <strong>Sqrock IT Solution</strong> | Alpha 2 Cybersecurity Track (Day 03)
       &bull; <a href="https://github.com/MdPeerSiddiqui/Peer-s-Phish-Detector" target="_blank">GitHub Repository</a>
       &bull; MIT License
     </p>
@@ -963,7 +989,7 @@
           performScan();
         }
       } catch (err) {
-        alert("Clipboard read permission denied or unavailable. Please paste manually into the input box.");
+        alert("Please paste the link directly into the box!");
       }
     }
 
@@ -976,13 +1002,13 @@
     async function performScan() {
       const url = urlInput.value.trim();
       if (!url) {
-        alert("Please enter a URL to inspect.");
+        alert("Please enter a URL to inspect 🐾");
         urlInput.focus();
         return;
       }
 
       btnScan.disabled = true;
-      btnScan.innerHTML = "<span>Scanning...</span>";
+      btnScan.innerHTML = "<span>Checking... 🐾</span>";
       const startTime = performance.now();
 
       try {
@@ -1000,16 +1026,16 @@
 
         renderResults(data, duration);
       } catch (err) {
-        alert("Error connecting to local analysis engine: " + err);
+        alert("Error connecting to analysis engine: " + err);
       } finally {
         btnScan.disabled = false;
-        btnScan.innerHTML = "<span>Inspect URL</span>";
+        btnScan.innerHTML = "<span>Inspect Link 🐾</span>";
       }
     }
 
     function renderResults(data, duration) {
       resultsSection.style.display = 'block';
-      document.getElementById('scanLatency').textContent = `Latency: ${duration} ms`;
+      document.getElementById('scanLatency').textContent = `⚡ Latency: ${duration} ms`;
 
       // 1. Score & Tier
       const score = data.score;
@@ -1017,34 +1043,38 @@
       document.getElementById('scoreNumber').textContent = score;
       document.getElementById('verdictText').textContent = data.verdict;
 
-      // Color mapping
-      let color = 'var(--low)';
-      let bgPill = 'rgba(16, 185, 129, 0.15)';
-      let textPill = 'var(--low)';
-      let borderPill = 'rgba(16, 185, 129, 0.3)';
+      // Color mapping (Cute Clay Palette)
+      let color = '#10b981'; // Mint Green
+      let bgPill = '#d1fae5';
+      let textPill = '#065f46';
+      let pillBorder = '#a7f3d0';
+      let pillEmoji = '🌿';
 
       if (tier === 'Critical Risk') {
-        color = 'var(--crit)';
-        bgPill = 'rgba(239, 68, 68, 0.15)';
-        textPill = 'var(--crit)';
-        borderPill = 'rgba(239, 68, 68, 0.35)';
+        color = '#ef4444'; // Red
+        bgPill = '#ffe4e6';
+        textPill = '#9f1239';
+        pillBorder = '#fda4af';
+        pillEmoji = '🚨';
       } else if (tier === 'High Risk') {
-        color = 'var(--high)';
-        bgPill = 'rgba(249, 115, 22, 0.15)';
-        textPill = 'var(--high)';
-        borderPill = 'rgba(249, 115, 22, 0.35)';
+        color = '#f97316'; // Orange
+        bgPill = '#ffedd5';
+        textPill = '#9a3412';
+        pillBorder = '#fed7aa';
+        pillEmoji = '⚠️';
       } else if (tier === 'Medium Risk') {
-        color = 'var(--med)';
-        bgPill = 'rgba(245, 158, 11, 0.15)';
-        textPill = 'var(--med)';
-        borderPill = 'rgba(245, 158, 11, 0.35)';
+        color = '#f59e0b'; // Amber
+        bgPill = '#fef3c7';
+        textPill = '#92400e';
+        pillBorder = '#fde68a';
+        pillEmoji = '🍑';
       }
 
       const pill = document.getElementById('tierPill');
-      pill.textContent = tier.toUpperCase();
+      document.getElementById('tierText').textContent = tier.toUpperCase();
       pill.style.background = bgPill;
       pill.style.color = textPill;
-      pill.style.border = `1px solid ${borderPill}`;
+      pill.style.border = `1.5px solid ${pillBorder}`;
 
       // Animate Radial Gauge (circumference = 2 * PI * 70 ≈ 440)
       const circumference = 440;
@@ -1063,10 +1093,10 @@
       const valScheme = document.getElementById('valScheme');
       if (scheme === 'HTTPS') {
         valScheme.className = 'anatomy-val badge-protocol-safe';
-        valScheme.textContent = 'HTTPS (TLS Encrypted)';
+        valScheme.textContent = 'HTTPS (TLS Encrypted) 🔒';
       } else {
         valScheme.className = 'anatomy-val badge-protocol-warn';
-        valScheme.textContent = 'HTTP (Unencrypted Protocol)';
+        valScheme.textContent = 'HTTP (Unencrypted) ⚠️';
       }
 
       document.getElementById('valHost').textContent = data.hostname || 'N/A';
@@ -1092,14 +1122,14 @@
       const dns = data.dns_info;
       if (dns) {
         if (dns.status === 'resolved') {
-          dnsElem.textContent = dns.ips.slice(0, 2).join(', ') + ' (Live Resolving)';
-          dnsElem.style.color = 'var(--cyan)';
+          dnsElem.textContent = dns.ips.slice(0, 2).join(', ') + ' (Live Resolving) ✨';
+          dnsElem.style.color = '#059669';
         } else if (dns.status === 'raw_ip') {
-          dnsElem.textContent = dns.ips[0] + ' (Direct IP Address)';
-          dnsElem.style.color = 'var(--crit)';
+          dnsElem.textContent = dns.ips[0] + ' (Direct IP Address) 🚨';
+          dnsElem.style.color = '#e11d48';
         } else if (dns.status === 'nxdomain') {
-          dnsElem.textContent = 'NXDOMAIN (Unregistered or Suspended Host)';
-          dnsElem.style.color = 'var(--med)';
+          dnsElem.textContent = 'NXDOMAIN (Unregistered or Suspended Host) ⚠️';
+          dnsElem.style.color = '#d97706';
         } else {
           dnsElem.textContent = dns.error || 'Lookup Failed';
           dnsElem.style.color = 'var(--text-muted)';
@@ -1113,27 +1143,22 @@
       const threatList = document.getElementById('threatList');
       threatList.innerHTML = '';
       const breakdown = data.breakdown || [];
-      document.getElementById('threatCount').textContent = `${breakdown.length} Rules Flagged`;
+      document.getElementById('threatCount').textContent = `${breakdown.length} Rules Flagged 🐾`;
 
       if (breakdown.length === 0) {
         threatList.innerHTML = `
           <div class="threat-clean">
-            <h4>No Suspicious Lexical Indicators Detected</h4>
-            <p>The analyzed URL exhibits baseline legitimate structure without deceptive character substitutions or high-risk patterns.</p>
+            <h4>🌸 Super Clean & Safe! 🐾</h4>
+            <p>No suspicious lexical patterns, homoglyphs, or phishing indicators detected in this URL.</p>
           </div>
         `;
       } else {
         breakdown.forEach(item => {
-          let badgeClass = 'low';
-          if (item.points >= 25) badgeClass = 'crit';
-          else if (item.points >= 20) badgeClass = 'high';
-          else if (item.points >= 15) badgeClass = 'med';
-
           const card = document.createElement('div');
-          card.className = `threat-item ${badgeClass}`;
+          card.className = 'threat-item';
           card.innerHTML = `
             <div class="threat-info">
-              <h4>${item.factor}</h4>
+              <h4><span>🐾</span> ${item.factor}</h4>
               <p>${item.reason}</p>
             </div>
             <div class="threat-points">+${item.points} pts</div>
@@ -1158,7 +1183,7 @@
 
     async function loadBenchmarkData() {
       const tbody = document.getElementById('benchmarkTbody');
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Executing benchmark suite...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Executing benchmark suite... 🐾</td></tr>';
       
       try {
         const res = await fetch('/api/benchmark');
@@ -1169,16 +1194,16 @@
           const isMatch = item.is_match;
           tr.innerHTML = `
             <td style="color: var(--text-muted);">${item.id}</td>
-            <td style="font-family: var(--font-mono); color: var(--text);">${item.url}</td>
-            <td style="font-weight: 700;">${item.actual_score}/100</td>
+            <td style="font-family: var(--font-mono); color: var(--text-main); font-weight: 700;">${item.url}</td>
+            <td style="font-weight: 800; color: var(--pink-deep);">${item.actual_score}/100</td>
             <td>${item.actual_risk}</td>
             <td style="color: var(--text-muted);">${item.expected_risk}</td>
-            <td><span class="match-tag ${isMatch ? 'match-ok' : 'match-divergent'}">${isMatch ? 'MATCH' : 'DIVERGENT'}</span></td>
+            <td><span class="match-tag ${isMatch ? 'match-ok' : 'match-divergent'}">${isMatch ? 'MATCH ✨' : 'DIVERGENT ⚠️'}</span></td>
           `;
           tbody.appendChild(tr);
         });
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color: var(--crit); text-align: center;">Failed to load benchmark: ${err}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="color: var(--crit); text-align: center; padding: 2rem;">Failed to load benchmark: ${err}</td></tr>`;
       }
     }
   </script>
